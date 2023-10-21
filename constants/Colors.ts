@@ -9,7 +9,11 @@ export default {
     tabIconDefault: '#ccc',
     tabIconSelected: tintColorLight,
     primary: '#2AC3FF',
+    secondary: '#7A54FF',
     white: '#fff',
+    gray1: '#DADADA',
+    green1: '#96DA45',
+    orange1: '#FF8F61',
   },
   dark: {
     text: '#fff',
@@ -18,6 +22,10 @@ export default {
     tabIconDefault: '#ccc',
     tabIconSelected: tintColorDark,
     primary: '#2AC3FF',
+    secondary: '#7A54FF',
     white: '#fff',
+    gray1: '#DADADA',
+    green1: '#96DA45',
+    orange1: '#FF8F61',
   },
 };

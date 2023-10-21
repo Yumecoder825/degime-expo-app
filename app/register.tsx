@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import { Entypo, MaterialCommunityIcons, SimpleLineIcons, Fontisto, Feather } from '@expo/vector-icons';
 
@@ -12,6 +13,10 @@ export default function RegisterScreen() {
 
   const handleOnPressViewPassword = () => {
     setIsShowPasswordPreview(p => !p)
+  }
+
+  const handleOnPressRegister = () => {
+    router.replace('/(tabs)')
   }
 
   return (
@@ -50,7 +55,7 @@ export default function RegisterScreen() {
             onPressRightIcon={handleOnPressViewPassword}
             placeholder='パスワード再入力'
           />
-          <Button color='white' bgColor='primary' text='新規登録' />
+          <Button color='white' bgColor='primary' text='新規登録' onPress={handleOnPressRegister} />
         </View>
         <View style={styles.socialIconGroup}>
           <TouchableOpacity>
@@ -71,7 +76,6 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 20,
   },
   pageContainer: {
     marginTop: -30,

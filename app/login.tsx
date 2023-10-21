@@ -3,7 +3,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { Entypo, MaterialCommunityIcons, SimpleLineIcons, Fontisto } from '@expo/vector-icons';
 import { Pressable } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 
 import { Text, View } from '../components/Themed';
 import { InputGroup } from '../components/InputGroup';
@@ -14,6 +14,9 @@ export default function LoginScreen() {
 
   const handleOnPressViewPassword = () => {
     setIsShowPasswordPreview(p => !p)
+  }
+  const handleOnPressLogin = () => {
+    router.replace('/(tabs)')
   }
 
   return (
@@ -48,7 +51,7 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
           </View>
-          <Button color='white' bgColor='primary' text='ログイン' />
+          <Button color='white' bgColor='primary' text='ログイン' onPress={handleOnPressLogin} />
         </View>
         <View style={styles.socialIconGroup}>
           <TouchableOpacity>
@@ -68,7 +71,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 20,
   },
   pageContainer: {
     marginTop: -30,

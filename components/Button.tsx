@@ -10,12 +10,14 @@ type TButtonProps = {
     rounded?: 'full';
 } & TouchableOpacity['props']
 
-export function Button({ color, bgColor, text, rounded = 'full' }: TButtonProps) {
+export function Button({ color, bgColor, text, rounded = 'full', ...otherProps }: TButtonProps) {
     const textColor = useThemeColor({}, color);
     const backColor = useThemeColor({}, bgColor);
 
     return (
-        <TouchableOpacity style={[styles.button, { backgroundColor: backColor, borderRadius: rounded === 'full' ? 999 : 0 }]}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: backColor, borderRadius: rounded === 'full' ? 999 : 0 }]}
+            {...otherProps}
+        >
             <Text style={[styles.text, { color: textColor }]}>{text}</Text>
         </TouchableOpacity>
     )

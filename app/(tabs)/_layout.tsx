@@ -1,18 +1,9 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable, useColorScheme } from 'react-native';
+import { AntDesign, FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
+import { StyleSheet, useColorScheme } from 'react-native';
 
 import Colors from '../../constants/Colors';
-
-/**
- * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
- */
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-}
+import { Text, View } from '../../components/Themed';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -20,36 +11,126 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].white,
+        tabBarActiveBackgroundColor: Colors[colorScheme ?? 'light'].secondary,
+        tabBarStyle: {
+          flexDirection: 'row',
+          justifyContent: 'flex-end'
+        },
+        tabBarItemStyle: {
+          // flex: 0,
+          // width: windowWidth / 6
+        }
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Link href="/login" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
+          title: '',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={styles.tab}>
+              <MaterialCommunityIcons name="message-processing-outline" style={{ marginBottom: -3 }} size={28} color={focused ? 'white' : "black"} />
+              {
+                focused && (
+                  <Text style={styles.tabText}>
+                    チャット
+                  </Text>
+                )
+              }
+            </View>
           ),
+          headerShown: false
+        }}
+      />
+
+      <Tabs.Screen
+        name="bookmark"
+        options={{
+          title: '',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={styles.tab}>
+              <MaterialCommunityIcons name="bookmark-multiple-outline" style={{ marginBottom: -3 }} size={28} color={focused ? 'white' : "black"} />
+              {
+                focused && (
+                  <Text style={styles.tabText}>
+                    チャット
+                  </Text>
+                )
+              }
+            </View>
+          ),
+          headerShown: false,
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="contact"
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: '',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={styles.tab}>
+              <MaterialIcons name="perm-contact-calendar" style={{ marginBottom: -3 }} size={28} color={focused ? 'white' : "black"} />
+              {
+                focused && (
+                  <Text style={styles.tabText}>
+                    チャット
+                  </Text>
+                )
+              }
+            </View>
+          ),
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: '',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={styles.tab}>
+              <AntDesign name="user" style={{ marginBottom: -3 }} size={28} color={focused ? 'white' : "black"} />
+              {
+                focused && (
+                  <Text style={styles.tabText}>
+                    チャット
+                  </Text>
+                )
+              }
+            </View>
+          ),
+          headerShown: false,
+        }}
+      />
+       <Tabs.Screen
+        name="charts"
+        options={{
+          title: '',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={styles.tab}>
+              <FontAwesome name="line-chart" style={{ marginBottom: -3 }} size={28} color="black" />
+              {
+                focused && (
+                  <Text style={styles.tabText}>
+                    チャット
+                  </Text>
+                )
+              }
+            </View>
+          ),
+          headerShown: false,
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tab: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    marginTop: 8
+  },
+  tabText: {
+    marginLeft: 4,
+    color: '#fff'
+  }
+})
