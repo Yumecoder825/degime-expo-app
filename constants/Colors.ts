@@ -14,6 +14,7 @@ export default {
     gray1: '#DADADA',
     green1: '#96DA45',
     orange1: '#FF8F61',
+    orange2: '#DA8D45',
   },
   dark: {
     text: '#fff',
@@ -27,5 +28,6 @@ export default {
     gray1: '#DADADA',
     green1: '#96DA45',
     orange1: '#FF8F61',
+    orange2: '#DA8D45',
   },
 };

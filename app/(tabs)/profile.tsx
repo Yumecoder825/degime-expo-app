@@ -59,7 +59,7 @@ export default function TabProfileScreen() {
                 <Text>degimeカードに書き込む</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.smallButton, { backgroundColor:  Colors[colorScheme ?? 'light'].green1 }]}>
+            <TouchableOpacity style={[styles.smallButton, { backgroundColor:  Colors[colorScheme ?? 'light'].orange2 }]}>
               <View style={styles.smallContainer}>
                 <Text>degimeカード購入する</Text>
               </View>
