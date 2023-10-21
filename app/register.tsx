@@ -30,7 +30,7 @@ export default function RegisterScreen() {
           <InputGroup
             title='ユーザー名(半角英数字４文字以上)'
             keyboardType='default'
-            leftIcon={<Feather name="user" size={24} color="black" />}
+            leftIcon={<Feather name="user" size={24} style={{ marginLeft: -2 }} color="black" />}
             placeholder='ユーザー名を入力してください'
           />
           {/* password */}
@@ -42,7 +42,7 @@ export default function RegisterScreen() {
             onPressRightIcon={handleOnPressViewPassword}
             placeholder='半角英数字６文字以上'
           />
-           <InputGroup
+          <InputGroup
             title='パスワードを再入力してください'
             leftIcon={<SimpleLineIcons name="lock" size={20} color="black" />}
             secureTextEntry={isShowPasswordPreview}
