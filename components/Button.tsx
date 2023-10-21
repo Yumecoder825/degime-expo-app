@@ -8,7 +8,8 @@ type TButtonProps = {
     color: keyof typeof Colors.light & keyof typeof Colors.dark
     text: string;
     rounded?: 'full';
-}
+} & TouchableOpacity['props']
+
 export function Button({ color, bgColor, text, rounded = 'full' }: TButtonProps) {
     const textColor = useThemeColor({}, color);
     const backColor = useThemeColor({}, bgColor);

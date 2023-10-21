@@ -1,15 +1,13 @@
 import { useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
-import { Entypo, MaterialCommunityIcons, SimpleLineIcons, Fontisto } from '@expo/vector-icons';
-import { Pressable } from 'react-native';
-import { Link } from 'expo-router';
+import { Entypo, MaterialCommunityIcons, SimpleLineIcons, Fontisto, Feather } from '@expo/vector-icons';
 
 import { Text, View } from '../components/Themed';
 import { InputGroup } from '../components/InputGroup';
 import { Button } from '../components/Button';
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const [isShowPasswordPreview, setIsShowPasswordPreview] = useState(false)
 
   const handleOnPressViewPassword = () => {
@@ -21,34 +19,38 @@ export default function LoginScreen() {
       <Image style={styles.logo} source={require('../assets/images/degime-logo.png')} />
       <View style={styles.pageContainer}>
         <View style={styles.inputGroup}>
-          <Text style={styles.title}>ログイン</Text>
-          <Link href="/register" asChild>
-            <Pressable>
-              <Text style={styles.registerMessage}>アカウント登録がお済みでない方は、こちらから新規登録できます</Text>
-            </Pressable>
-          </Link>
+          <Text style={styles.title}>新規登録</Text>
+          <Text style={styles.registerMessage}>すでに登録済みの方は、こちらからログインできます</Text>
           <InputGroup
             title='Eメール'
             keyboardType='email-address'
             leftIcon={<Fontisto name="email" size={20} color="black" />}
-            placeholder='ユーザー名かメールアドレスを入力してください'
+            placeholder='メールアドレスを入力してください'
           />
-          <View>
-            <InputGroup
-              title='パスワード'
-              leftIcon={<SimpleLineIcons name="lock" size={20} color="black" />}
-              secureTextEntry={isShowPasswordPreview}
-              rightIcon={isShowPasswordPreview ? <MaterialCommunityIcons name="eye-off" size={24} color="black" /> : <Entypo name="eye" size={20} color="black" />}
-              onPressRightIcon={handleOnPressViewPassword}
-              placeholder='パスワードを入力してください'
-            />
-            <View style={styles.forgotPasswordButton}>
-              <TouchableOpacity>
-                <Text>パスワードを忘れた</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <Button color='white' bgColor='primary' text='ログイン' />
+          <InputGroup
+            title='ユーザー名(半角英数字４文字以上)'
+            keyboardType='default'
+            leftIcon={<Feather name="user" size={24} color="black" />}
+            placeholder='ユーザー名を入力してください'
+          />
+          {/* password */}
+          <InputGroup
+            title='パスワード'
+            leftIcon={<SimpleLineIcons name="lock" size={20} color="black" />}
+            secureTextEntry={isShowPasswordPreview}
+            rightIcon={isShowPasswordPreview ? <MaterialCommunityIcons name="eye-off" size={24} color="black" /> : <Entypo name="eye" size={20} color="black" />}
+            onPressRightIcon={handleOnPressViewPassword}
+            placeholder='半角英数字６文字以上'
+          />
+           <InputGroup
+            title='パスワードを再入力してください'
+            leftIcon={<SimpleLineIcons name="lock" size={20} color="black" />}
+            secureTextEntry={isShowPasswordPreview}
+            rightIcon={isShowPasswordPreview ? <MaterialCommunityIcons name="eye-off" size={24} color="black" /> : <Entypo name="eye" size={20} color="black" />}
+            onPressRightIcon={handleOnPressViewPassword}
+            placeholder='パスワード再入力'
+          />
+          <Button color='white' bgColor='primary' text='新規登録' />
         </View>
         <View style={styles.socialIconGroup}>
           <TouchableOpacity>
@@ -65,6 +67,7 @@ export default function LoginScreen() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -104,9 +107,4 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 999,
   },
-  forgotPasswordButton: {
-    alignItems: 'flex-end',
-    marginTop: 12,
-    paddingRight: 30
-  }
 });
