@@ -1,8 +1,7 @@
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useState } from 'react';
-import { Pressable, SafeAreaView, StyleSheet, useColorScheme } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Pressable, SafeAreaView, StyleSheet, useColorScheme, TouchableOpacity } from 'react-native';
 import { AppModal } from '../../components/Modal';
 import { SearchInput } from '../../components/SearchInput';
 
