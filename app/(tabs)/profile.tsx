@@ -1,7 +1,9 @@
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { Pressable, StyleSheet, useColorScheme } from 'react-native';
+import { useState } from 'react';
+import { Pressable, SafeAreaView, StyleSheet, useColorScheme } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { AppModal } from '../../components/Modal';
 import { SearchInput } from '../../components/SearchInput';
 
 import { Text, View } from '../../components/Themed';
@@ -12,9 +14,22 @@ const { windowWidth, windowHeight } = getDimention()
 
 export default function TabProfileScreen() {
   const colorScheme = useColorScheme();
+  const [warningModalVisible, setWarningModalVisible] = useState(false);
+
+  const handleOnPressOnlineBusinessCard = () => {
+    setWarningModalVisible(true)
+  }
+
+  const handleWarningModalOnRequestClose = () => {
+    setWarningModalVisible(false)
+  }
+
+  const handleOnPressReturn = () => {
+    setWarningModalVisible(false)
+  }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.pageContainer}>
         <Image style={styles.logo} source={require('../../assets/images/degime-logo.png')} />
         <Image style={[styles.profileBg, { width: windowWidth, height: windowHeight / 4 }]} source={require('../../assets/images/profile-bg.png')} />
@@ -33,7 +48,9 @@ export default function TabProfileScreen() {
         <View style={styles.subContainer}>
           <SearchInput placeholder='検索' />
           <View style={{ marginTop: 40, flexDirection: 'column', gap: 8 }}>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button}
+              onPress={handleOnPressOnlineBusinessCard}
+            >
               <Text style={styles.buttonText}>オンライン名刺編集</Text>
               <Ionicons style={styles.buttonIcon} name="add-circle" size={26} color="black" />
             </TouchableOpacity>
@@ -48,18 +65,18 @@ export default function TabProfileScreen() {
           </View>
 
           <View style={styles.smallButtonsContainer}>
-            <TouchableOpacity style={[styles.smallButton, { backgroundColor:  Colors[colorScheme ?? 'light'].green1 }]}>
+            <TouchableOpacity style={[styles.smallButton, { backgroundColor: Colors[colorScheme ?? 'light'].green1 }]}>
               <View style={styles.smallContainer}>
                 <Text>チャット</Text>
                 <Text style={[styles.badge, { backgroundColor: Colors[colorScheme ?? 'light'].orange1 }]}>5</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.smallButton, { backgroundColor:  Colors[colorScheme ?? 'light'].orange1 }]}>
+            <TouchableOpacity style={[styles.smallButton, { backgroundColor: Colors[colorScheme ?? 'light'].orange1 }]}>
               <View style={styles.smallContainer}>
                 <Text>degimeカードに書き込む</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.smallButton, { backgroundColor:  Colors[colorScheme ?? 'light'].orange2 }]}>
+            <TouchableOpacity style={[styles.smallButton, { backgroundColor: Colors[colorScheme ?? 'light'].orange2 }]}>
               <View style={styles.smallContainer}>
                 <Text>degimeカード購入する</Text>
               </View>
@@ -67,7 +84,18 @@ export default function TabProfileScreen() {
           </View>
         </View>
       </View>
-    </View>
+      <AppModal isVisible={warningModalVisible} onRequestClose={handleWarningModalOnRequestClose}>
+        <Text>書き込むURLがありません。ページの   作成をお願いします。</Text>
+        <View>
+          <TouchableOpacity
+            style={[styles.modalButton, { backgroundColor: Colors[colorScheme ?? 'light'].green1 }]}
+            onPress={handleOnPressReturn}
+          >
+            <Text>戻る</Text>
+          </TouchableOpacity>
+        </View>
+      </AppModal>
+    </SafeAreaView>
   );
 }
 
@@ -137,8 +165,8 @@ const styles = StyleSheet.create({
   },
   smallButtonsContainer: {
     marginTop: 40,
-    paddingLeft: windowWidth  / 8,
-    paddingRight: windowWidth  / 8,
+    paddingLeft: windowWidth / 8,
+    paddingRight: windowWidth / 8,
     flexDirection: 'column',
     gap: 8
   },
@@ -162,5 +190,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     right: -20,
     bottom: -4
+  },
+  modalButton: {
+    borderRadius: 8,
+    marginTop: 20,
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingLeft: 40,
+    paddingRight: 40,
   }
 });
