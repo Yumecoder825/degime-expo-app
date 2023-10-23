@@ -1,5 +1,6 @@
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, useColorScheme, TouchableOpacity } from 'react-native';
 import { AppModal } from '../../components/Modal';
@@ -25,6 +26,9 @@ export default function TabProfileScreen() {
 
   const handleOnPressReturn = () => {
     setWarningModalVisible(false)
+  }
+  const handleOnPressSnsProfile = () => {
+    router.replace('/profileeditor')
   }
 
   return (
@@ -53,7 +57,9 @@ export default function TabProfileScreen() {
               <Text style={styles.buttonText}>オンライン名刺編集</Text>
               <Ionicons style={styles.buttonIcon} name="add-circle" size={26} color="black" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button}
+              onPress={handleOnPressSnsProfile}
+            >
               <Text style={styles.buttonText}>SNS向けリンクツリー</Text>
               <Ionicons style={styles.buttonIcon} name="add-circle" size={26} color="black" />
             </TouchableOpacity>
