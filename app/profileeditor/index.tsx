@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { SafeAreaView, StyleSheet, TouchableOpacity, useColorScheme, TextInput, ScrollView, KeyboardAvoidingView, Platform, StatusBar } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -7,12 +8,20 @@ import { Image } from "expo-image";
 import { getDimention } from "../../utils/dimentions";
 import { ProfileBanner } from "../../components/profileeditor/Banner";
 import { ImageWidget } from "../../components/profileeditor/ImageWidget";
+import { AppModal } from "../../components/Modal";
 
 const { windowWidth, windowHeight } = getDimention()
 
 export default function ProfileEditorScreen() {
     const colorTheme = useColorScheme()
+    const [isShowSaveModal, setIsShowSaveModal] = useState(false)
 
+    const handleOnPressSaveBtn = () => {
+        setIsShowSaveModal(true)
+    }
+    const handleOnRequestClose = () => {
+        setIsShowSaveModal(false)
+    }
     const handleOnPressBack = () => {
         router.replace('/profile')
     }
@@ -145,13 +154,33 @@ export default function ProfileEditorScreen() {
                                 defaultValue="https://superstar.portfolio/mywebsite"
                             />
 
-                            <TouchableOpacity style={[styles.saveBtn, { backgroundColor: Colors[colorTheme ?? 'light'].primary  }]}>
+                            <TouchableOpacity style={[styles.saveBtn, { backgroundColor: Colors[colorTheme ?? 'light'].primary }]}
+                                onPress={handleOnPressSaveBtn}
+                            >
                                 <Text style={styles.saveBtnText}>保存する</Text>
                             </TouchableOpacity>
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>
             </View>
+            <AppModal
+                isVisible={isShowSaveModal}
+                onRequestClose={handleOnRequestClose}
+                showCloseBtn
+                borderColor='#000'
+            >
+                <Text style={modalStyles.text}>どちらに保存しますか？</Text>
+                <View style={modalStyles.container}>
+                    <TouchableOpacity style={[modalStyles.btn, { borderColor: '#000' }]}
+                    >
+                        <Text style={modalStyles.btnText}>ビジネス</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[modalStyles.btn, { backgroundColor: Colors[colorTheme ?? 'light'].orange1, borderColor: Colors[colorTheme ?? 'light'].orange1 }]}
+                    >
+                        <Text style={[modalStyles.btnText, { color: '#fff' }]}>プライベート</Text>
+                    </TouchableOpacity>
+                </View>
+            </AppModal>
         </SafeAreaView>
     )
 }
@@ -266,3 +295,27 @@ const styles = StyleSheet.create({
         color: '#fff',
     }
 });
+
+const modalStyles = StyleSheet.create({
+    container: {
+        flexDirection: 'row',
+        marginHorizontal: 4,
+        gap: 16,
+        marginVertical: 16
+    },
+    text: {
+        fontSize: 20,
+        marginVertical: 16
+    },
+    btn: {
+        paddingVertical: 4,
+        borderRadius: 8,
+        borderWidth: 1,
+        flex: 1
+    },
+    btnText: {
+        fontSize: 18,
+        fontWeight: '400',
+        textAlign: 'center'
+    }
+})
