@@ -17,6 +17,7 @@ export default {
     orange2: '#DA8D45',
     blue1: '#2A08F8',
     blue2: '#2A08F888',
+    blue3: '#4C31F4',
   },
   dark: {
     text: '#fff',
@@ -33,5 +34,6 @@ export default {
     orange2: '#DA8D45',
     blue1: '#2A08F8',
     blue2: '#2A08F888',
+    blue3: '#4C31F4',
   },
 };
