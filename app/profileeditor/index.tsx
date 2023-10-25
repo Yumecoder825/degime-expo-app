@@ -9,12 +9,13 @@ import { getDimention } from "../../utils/dimentions";
 import { ProfileBanner } from "../../components/profileeditor/Banner";
 import { ImageWidget } from "../../components/profileeditor/widgets/ImageWidget";
 import { AppModal } from "../../components/Modal";
+import { SliderWidget } from "../../components/profileeditor/widgets/SliderWidget";
 
 const { windowWidth, windowHeight } = getDimention()
 
 export default function ProfileEditorScreen() {
     const colorTheme = useColorScheme()
-    const [isShowSaveModal, setIsShowSaveModal] = useState(true);
+    const [isShowSaveModal, setIsShowSaveModal] = useState(false);
     const [isShowWidget, setIsShowWidget] = useState(false);
 
     const handleOnPressSaveBtn = () => {
@@ -22,6 +23,9 @@ export default function ProfileEditorScreen() {
     }
     const handleOnRequestClose = () => {
         setIsShowSaveModal(false)
+    }
+    const handleOnRequestWidgetClose = () => {
+        setIsShowWidget(false)
     }
     const handleOnPressBack = () => {
         router.replace('/profile')
@@ -75,9 +79,11 @@ export default function ProfileEditorScreen() {
                             <ProfileBanner />
                         </View>
                         <View style={styles.profileContainer}>
-                            <View>
+                            <TouchableOpacity
+                                onPress={handleOnPressAvatar}
+                            >
                                 <Image style={styles.userAvatar} source={require('../../assets/images/user-avatar.png')} />
-                            </View>
+                            </TouchableOpacity>
                             <View style={styles.profileGroup}>
                                 <TextInput style={[styles.userName, { backgroundColor: Colors[colorTheme ?? 'light'].primary }]}
                                     defaultValue="あおい"
@@ -185,6 +191,12 @@ export default function ProfileEditorScreen() {
                         <Text style={[modalStyles.btnText, { color: '#fff' }]}>プライベート</Text>
                     </TouchableOpacity>
                 </View>
+            </AppModal>
+            <AppModal
+                isVisible={isShowWidget}
+                onRequestClose={handleOnRequestWidgetClose}
+            >
+                <SliderWidget />
             </AppModal>
         </SafeAreaView>
     )

@@ -133,6 +133,7 @@ export function ImageWidget() {
                         {
                             widgets.map((widget, idx) => (
                                 <ImageWidgetItem
+                                    key={idx}
                                     img={widget.source}
                                     onPressClose={() => removeWidget(idx)}
                                 />
