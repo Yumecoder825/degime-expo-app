@@ -24,6 +24,7 @@ export function AppModal({ isVisible, onRequestClose, borderColor, showCloseBtn,
             transparent={true}
             visible={isVisible}
             onRequestClose={onRequestClose}
+            style={styles.modal}
         >
             <View style={styles.centeredView}>
                 <View style={[styles.modalView, { borderColor: borderColor || '#fff' }]}>
@@ -44,6 +45,8 @@ export function AppModal({ isVisible, onRequestClose, borderColor, showCloseBtn,
 }
 
 const styles = StyleSheet.create({
+    modal: {
+    },
     centeredView: {
         flex: 1,
         justifyContent: 'center',
@@ -58,7 +61,6 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         borderWidth: 1,
         padding: 16,
-        alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
