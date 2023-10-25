@@ -9,8 +9,9 @@ import { getDimention } from "../../utils/dimentions";
 import { ProfileBanner } from "../../components/profileeditor/Banner";
 import { ImageWidget } from "../../components/profileeditor/widgets/ImageWidget";
 import { AppModal } from "../../components/Modal";
-// import { SliderWidget } from "../../components/profileeditor/widgets/SliderWidget";
+import { SliderWidget } from "../../components/profileeditor/widgets/SliderWidget";
 import SmallImageWidget from "../../components/profileeditor/widgets/SmallImageWidget";
+import YoutubeWidget from "../../components/profileeditor/widgets/YoutubeWidget";
 
 const { windowWidth, windowHeight } = getDimention()
 
@@ -199,7 +200,7 @@ export default function ProfileEditorScreen() {
             >
                 <SliderWidget />
             </AppModal> */}
-            <AppModal
+            {/* <AppModal
                 isVisible={isShowWidget}
                 onRequestClose={handleOnRequestWidgetClose}
                 modalViewStyle={{
@@ -207,6 +208,12 @@ export default function ProfileEditorScreen() {
                 }}
             >
                 <SmallImageWidget />
+            </AppModal> */}
+            <AppModal
+                isVisible={isShowWidget}
+                onRequestClose={handleOnRequestWidgetClose}
+            >
+                <YoutubeWidget />
             </AppModal>
         </SafeAreaView>
     )

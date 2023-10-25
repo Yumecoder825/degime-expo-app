@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { StyleSheet, TouchableOpacity } from "react-native"
 import { Entypo } from '@expo/vector-icons';
 import { Image } from "expo-image";
@@ -10,6 +11,16 @@ type TSliderWidgetProps = {
 }
 
 export function SliderWidget({ }: TSliderWidgetProps) {
+    const [images] = useState<[string, string, string]>([
+        require('../../../assets/images/slider-img.png'),
+        require('../../../assets/images/slider-img.png'),
+        require('../../../assets/images/slider-img.png'),
+    ])
+
+    const handleOnPressCenterImage = () => {
+
+    }
+
     return (
         <View
             style={styles.container}
@@ -25,18 +36,28 @@ export function SliderWidget({ }: TSliderWidgetProps) {
                 <View
                     style={styles.imgContainer}
                 >
-                    <Image
-                        source={require('../../../assets/images/slider-img.png')}
-                        style={styles.previewImg}
-                    />
-                    <Image
-                        source={require('../../../assets/images/slider-img.png')}
-                        style={styles.mainImg}
-                    />
-                    <Image
-                        source={require('../../../assets/images/slider-img.png')}
-                        style={styles.previewImg}
-                    />
+                    <TouchableOpacity>
+                        <Image
+                            source={images[0]}
+                            style={styles.previewImg}
+                        />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={handleOnPressCenterImage}
+                    >
+                        <Image
+                            source={images[1]}
+                            style={styles.mainImg}
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity>
+                        <Image
+                            source={images[2]}
+                            style={styles.previewImg}
+                        />
+                    </TouchableOpacity>
+
                 </View>
                 <TouchableOpacity
                     style={styles.actionBtn}

@@ -3,8 +3,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { Image } from "expo-image";
 import { View } from "../../Themed";
 import { ProfileInput } from "./Input";
-
-const placeHolderImg = require('../../../assets/images/img-placeholder.png');
+import AppImages from "../../../constants/Images";
 
 type TImageWidgetItemProps = {
     img: Image['props']['source'] | null;
@@ -30,7 +29,7 @@ export function ImageWidgetItem({ img, onPressClose }: TImageWidgetItemProps) {
                 >
                     <Image
                         style={styles.placeholdeImg}
-                        source={img || placeHolderImg}
+                        source={img || AppImages.imagePlaceHolder}
                     />
                 </View>
                 <TextInput

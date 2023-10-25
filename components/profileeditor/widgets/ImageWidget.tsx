@@ -8,6 +8,7 @@ import { getDimention } from "../../../utils/dimentions";
 import { AppModal } from "../../Modal";
 import { ImageWidgetItem } from "../elements/ImageWidgetItem";
 import { ActionButtons } from "../elements/ActionButtons";
+import AppImages from "../../../constants/Images";
 
 const { windowWidth } = getDimention()
 
@@ -60,7 +61,7 @@ const imgElementStyles = StyleSheet.create({
 ///////////////////////////////
 
 type TImageWidgets = Omit<TImgElementProps, 'onPress'>[];
-const placeHolderImg = require('../../../assets/images/img-placeholder.png');
+const placeHolderImg = AppImages.imagePlaceHolder;
 
 const defaultImgWidget = {
     source: '',
