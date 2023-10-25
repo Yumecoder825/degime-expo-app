@@ -1,4 +1,4 @@
-import { Modal, StyleSheet, TouchableOpacity, useColorScheme } from 'react-native'
+import { Modal, StyleSheet, TouchableOpacity, useColorScheme, View as RNView } from 'react-native'
 
 import { getDimention } from '../utils/dimentions';
 import { AntDesign } from '@expo/vector-icons';
@@ -12,10 +12,11 @@ type TModalProps = {
     onRequestClose: () => void;
     borderColor?: string;
     showCloseBtn?: boolean;
+    modalViewStyle?: RNView['props']['style'];
     children: any;
 }
 
-export function AppModal({ isVisible, onRequestClose, borderColor, showCloseBtn, children }: TModalProps) {
+export function AppModal({ isVisible, onRequestClose, borderColor, showCloseBtn, children, modalViewStyle }: TModalProps) {
     const colorTheme = useColorScheme()
 
     return (
@@ -27,7 +28,8 @@ export function AppModal({ isVisible, onRequestClose, borderColor, showCloseBtn,
             style={styles.modal}
         >
             <View style={styles.centeredView}>
-                <View style={[styles.modalView, { borderColor: borderColor || '#fff' }]}>
+                <View style={[modalViewStyle ? modalViewStyle : styles.modalView, { borderColor: borderColor || '#fff' }, modalViewStyle]}
+                >
                     {
                         showCloseBtn && (
                             <TouchableOpacity style={[styles.closeButton, { backgroundColor: Colors[colorTheme ?? 'light'].grayMedium }]}

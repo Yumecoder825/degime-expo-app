@@ -9,7 +9,8 @@ import { getDimention } from "../../utils/dimentions";
 import { ProfileBanner } from "../../components/profileeditor/Banner";
 import { ImageWidget } from "../../components/profileeditor/widgets/ImageWidget";
 import { AppModal } from "../../components/Modal";
-import { SliderWidget } from "../../components/profileeditor/widgets/SliderWidget";
+// import { SliderWidget } from "../../components/profileeditor/widgets/SliderWidget";
+import SmallImageWidget from "../../components/profileeditor/widgets/SmallImageWidget";
 
 const { windowWidth, windowHeight } = getDimention()
 
@@ -192,11 +193,20 @@ export default function ProfileEditorScreen() {
                     </TouchableOpacity>
                 </View>
             </AppModal>
-            <AppModal
+            {/* <AppModal
                 isVisible={isShowWidget}
                 onRequestClose={handleOnRequestWidgetClose}
             >
                 <SliderWidget />
+            </AppModal> */}
+            <AppModal
+                isVisible={isShowWidget}
+                onRequestClose={handleOnRequestWidgetClose}
+                modalViewStyle={{
+                        backgroundColor: 'transparent'
+                }}
+            >
+                <SmallImageWidget />
             </AppModal>
         </SafeAreaView>
     )

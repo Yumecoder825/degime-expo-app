@@ -4,12 +4,13 @@ import Colors from "../../../constants/Colors"
 import { Text, View } from "../../Themed"
 
 type TActionButtonsProps = {
+    hideTrash?: boolean;
     onPressTrust?: TouchableOpacity['props']['onPress'];
     onPressReservation?: TouchableOpacity['props']['onPress'];
     onPressSave?: TouchableOpacity['props']['onPress'];
 }
 
-export function ActionButtons({ onPressReservation, onPressSave, onPressTrust }: TActionButtonsProps) {
+export function ActionButtons({ hideTrash, onPressReservation, onPressSave, onPressTrust }: TActionButtonsProps) {
     const colorTheme = useColorScheme() ?? 'light';
 
     return (
@@ -18,7 +19,10 @@ export function ActionButtons({ onPressReservation, onPressSave, onPressTrust }:
         >
             <TouchableOpacity
                 style={[
-                    styles.button
+                    styles.button,
+                    hideTrash && {
+                        display: 'none'
+                    }
                 ]}
                 onPress={onPressTrust}
             >
