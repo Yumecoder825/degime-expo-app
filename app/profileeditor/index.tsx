@@ -13,6 +13,7 @@ import { SliderWidget } from "../../components/profileeditor/widgets/SliderWidge
 import SmallImageWidget from "../../components/profileeditor/widgets/SmallImageWidget";
 import YoutubeWidget from "../../components/profileeditor/widgets/YoutubeWidget";
 import MapWidget from "../../components/profileeditor/widgets/MapWidget";
+import MarginWidget from "../../components/profileeditor/widgets/MarginWidget";
 
 const { windowWidth, windowHeight } = getDimention()
 
@@ -210,11 +211,17 @@ export default function ProfileEditorScreen() {
             >
                 <SmallImageWidget />
             </AppModal> */}
-            <AppModal
+            {/* <AppModal
                 isVisible={isShowWidget}
                 onRequestClose={handleOnRequestWidgetClose}
             >
                 <MapWidget />
+            </AppModal> */}
+            <AppModal
+                isVisible={isShowWidget}
+                onRequestClose={handleOnRequestWidgetClose}
+            >
+                <MarginWidget />
             </AppModal>
             {/* <AppModal
                 isVisible={isShowWidget}

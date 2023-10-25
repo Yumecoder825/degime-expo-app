@@ -5,12 +5,13 @@ import { Text, View } from "../../Themed"
 
 type TActionButtonsProps = {
     hideTrash?: boolean;
+    hideReservation?: boolean;
     onPressTrust?: TouchableOpacity['props']['onPress'];
     onPressReservation?: TouchableOpacity['props']['onPress'];
     onPressSave?: TouchableOpacity['props']['onPress'];
 }
 
-export function ActionButtons({ hideTrash, onPressReservation, onPressSave, onPressTrust }: TActionButtonsProps) {
+export function ActionButtons({ hideTrash, hideReservation, onPressReservation, onPressSave, onPressTrust }: TActionButtonsProps) {
     const colorTheme = useColorScheme() ?? 'light';
 
     return (
@@ -48,6 +49,9 @@ export function ActionButtons({ hideTrash, onPressReservation, onPressSave, onPr
                 style={[
                     styles.button, {
                         backgroundColor: Colors[colorTheme].orange1
+                    },
+                    hideReservation && {
+                        display: 'none'
                     }
                 ]}
                 onPress={onPressReservation}
