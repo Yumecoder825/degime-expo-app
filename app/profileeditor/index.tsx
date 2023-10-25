@@ -14,7 +14,8 @@ const { windowWidth, windowHeight } = getDimention()
 
 export default function ProfileEditorScreen() {
     const colorTheme = useColorScheme()
-    const [isShowSaveModal, setIsShowSaveModal] = useState(false)
+    const [isShowSaveModal, setIsShowSaveModal] = useState(true);
+    const [isShowWidget, setIsShowWidget] = useState(false);
 
     const handleOnPressSaveBtn = () => {
         setIsShowSaveModal(true)
@@ -24,6 +25,10 @@ export default function ProfileEditorScreen() {
     }
     const handleOnPressBack = () => {
         router.replace('/profile')
+    }
+
+    const handleOnPressAvatar = () => {
+        setIsShowWidget(true)
     }
 
     return (

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "degime-expo-app",
-    "slug": "degime-expo-app",
+    "slug": "development",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -34,6 +34,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "8092c4a1-8d93-4843-b574-9692156cd783"
+      }
+    },
+    "owner": "nicholasgoh"
   }
 }
