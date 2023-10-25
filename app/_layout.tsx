@@ -21,6 +21,9 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    Poppins: {
+      uri: 'https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;1,400;1,500&display=swap',
+    },
     ...FontAwesome.font,
   });
 
@@ -52,6 +55,7 @@ function RootLayoutNav() {
         <Stack.Screen name="register" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="savedprofiles" options={{ headerShown: false }} />
         <Stack.Screen name="profileeditor/index"
           options={{
             headerShown: false,

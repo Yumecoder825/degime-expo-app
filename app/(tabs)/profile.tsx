@@ -30,6 +30,9 @@ export default function TabProfileScreen() {
   const handleOnPressSnsProfile = () => {
     router.replace('/profileeditor')
   }
+  const handleOnPressLandingPage = () => {
+    router.replace('/savedprofiles')
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -63,7 +66,9 @@ export default function TabProfileScreen() {
               <Text style={styles.buttonText}>SNS向けリンクツリー</Text>
               <Ionicons style={styles.buttonIcon} name="add-circle" size={26} color="black" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button}
+              onPress={handleOnPressLandingPage}
+            >
               <Text style={styles.buttonText}>ランディングページ</Text>
               <Ionicons style={styles.buttonIcon} name="add-circle" size={26} color="black" />
             </TouchableOpacity>

@@ -1,9 +1,12 @@
 const tintColorLight = '#2f95dc';
 const tintColorDark = '#fff';
+const gray2 = '#B9B9B9';
 
 export default {
   light: {
     text: '#000',
+    textLight: '#8A8A8D',
+    textDisable: gray2,
     background: '#fff',
     tint: tintColorLight,
     tabIconDefault: '#ccc',
@@ -12,6 +15,7 @@ export default {
     secondary: '#7A54FF',
     white: '#fff',
     gray1: '#DADADA',
+    gray2: gray2,
     grayMedium: '#E5E5E5',
     green1: '#96DA45',
     orange1: '#FF8F61',
@@ -19,9 +23,12 @@ export default {
     blue1: '#2A08F8',
     blue2: '#2A08F888',
     blue3: '#4C31F4',
+    purple1: '#9747FF',
   },
   dark: {
     text: '#fff',
+    textLight: '#8A8A8D',
+    textDisable: gray2,
     background: '#000',
     tint: tintColorDark,
     tabIconDefault: '#ccc',
@@ -30,6 +37,7 @@ export default {
     secondary: '#7A54FF',
     white: '#fff',
     gray1: '#DADADA',
+    gray2: gray2,
     grayMedium: '#E5E5E5',
     green1: '#96DA45',
     orange1: '#FF8F61',
@@ -37,5 +45,6 @@ export default {
     blue1: '#2A08F8',
     blue2: '#2A08F888',
     blue3: '#4C31F4',
+    purple1: '#9747FF',
   },
 };

@@ -70,9 +70,10 @@ const styles = StyleSheet.create({
     },
     closeButton: {
         position: 'absolute',
-        right: 10,
         top: 10,
+        right: 10,
         padding: 4,
-        borderRadius: 999
+        borderRadius: 999,
+        zIndex: 1,
     }
 });
