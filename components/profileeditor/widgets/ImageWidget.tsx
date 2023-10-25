@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Image } from "expo-image";
 import { ScrollView, StyleSheet, useColorScheme } from "react-native";
-import Colors from "../../constants/Colors";
-import { Text, View } from "../Themed";
-import { getDimention } from "../../utils/dimentions";
+import Colors from "../../../constants/Colors";
+import { Text, View } from "../../Themed";
+import { getDimention } from "../../../utils/dimentions";
 
 const { windowWidth } = getDimention()
 

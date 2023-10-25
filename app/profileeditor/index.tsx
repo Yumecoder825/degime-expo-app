@@ -7,7 +7,7 @@ import Colors from "../../constants/Colors";
 import { Image } from "expo-image";
 import { getDimention } from "../../utils/dimentions";
 import { ProfileBanner } from "../../components/profileeditor/Banner";
-import { ImageWidget } from "../../components/profileeditor/ImageWidget";
+import { ImageWidget } from "../../components/profileeditor/widgets/ImageWidget";
 import { AppModal } from "../../components/Modal";
 
 const { windowWidth, windowHeight } = getDimention()
