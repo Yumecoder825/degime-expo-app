@@ -23,7 +23,9 @@ export default {
     blue1: '#2A08F8',
     blue2: '#2A08F888',
     blue3: '#4C31F4',
+    blue4: '#5A65FF',
     purple1: '#9747FF',
+    red1: '#FF6A68',
   },
   dark: {
     text: '#fff',
@@ -45,6 +47,8 @@ export default {
     blue1: '#2A08F8',
     blue2: '#2A08F888',
     blue3: '#4C31F4',
+    blue4: '#5A65FF',
     purple1: '#9747FF',
+    red1: '#FF6A68',
   },
 };
