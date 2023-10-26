@@ -5,6 +5,7 @@ import { Image } from "expo-image";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { Text, View } from "../../Themed"
 import { ActionButtons } from "../elements/ActionButtons"
+import AppImages from "../../../constants/Images";
 
 type TSliderWidgetProps = {
 
@@ -12,9 +13,7 @@ type TSliderWidgetProps = {
 
 export function SliderWidget({ }: TSliderWidgetProps) {
     const [images] = useState<[string, string, string]>([
-        require('../../../assets/images/slider-img.png'),
-        require('../../../assets/images/slider-img.png'),
-        require('../../../assets/images/slider-img.png'),
+        AppImages.sliderImg, AppImages.sliderImg, AppImages.sliderImg,
     ])
 
     const handleOnPressCenterImage = () => {

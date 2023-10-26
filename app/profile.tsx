@@ -8,6 +8,7 @@ import { SearchInput } from '../components/SearchInput';
 
 import { Text, View } from '../components/Themed';
 import Colors from '../constants/Colors';
+import AppImages from '../constants/Images';
 import { getDimention } from '../utils/dimentions';
 
 const { windowWidth, windowHeight } = getDimention()
@@ -43,11 +44,11 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.pageContainer}>
-        <Image style={styles.logo} source={require('../../assets/images/degime-logo.png')} />
-        <Image style={[styles.profileBg, { width: windowWidth, height: windowHeight / 4 }]} source={require('../../assets/images/profile-bg.png')} />
+        <Image style={styles.logo} source={AppImages.degimeLogo} />
+        <Image style={[styles.profileBg, { width: windowWidth, height: windowHeight / 4 }]} source={AppImages.profileBg} />
         <View style={styles.profileContainer}>
           <View style={styles.avatarContainer}>
-            <Image style={[styles.avatar]} source={require('../../assets/images/user-avatar.png')} />
+            <Image style={[styles.avatar]} source={AppImages.userAvatar} />
             <Text style={{ fontWeight: 'bold' }}>はるこ</Text>
             <Text style={{ fontWeight: 'bold' }}>https://myprofile.co</Text>
           </View>
@@ -58,7 +59,7 @@ export default function ProfileScreen() {
           </View>
         </View>
         <View style={styles.subContainer}>
-          <SearchInput placeholder='検索' 
+          <SearchInput placeholder='検索'
             onChangeText={handleOnChangeSearchText}
             value={searchString}
             onPressClose={() => handleOnChangeSearchText('')}

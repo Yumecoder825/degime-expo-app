@@ -8,6 +8,7 @@ import { getDimention } from "../utils/dimentions"
 import Colors from "../constants/Colors"
 import { ProfileItemView, TProfileItemViewProps } from "../components/savedProfile/ProfileItem"
 import { AppModal } from "../components/Modal"
+import AppImages from "../constants/Images"
 
 const { windowWidth, windowHeight } = getDimention()
 
@@ -23,19 +24,19 @@ function SavedProfilesScreen() {
     const [tab, setTab] = useState(Tab.business)
     const [profiles] = useState<Profile[]>([
         {
-            source: require('../assets/images/saved-item-avatar.png'),
+            source: AppImages.savedItemAvatar,
             title: 'Jane Cooper',
             date1: '2022/11/20保存',
             date2: '2022/11/20更新',
         },
         {
-            source: require('../assets/images/saved-item-avatar.png'),
+            source: AppImages.savedItemAvatar,
             title: 'Jane Cooper',
             date1: '2022/11/20保存',
             date2: '2022/11/20更新',
         },
         {
-            source: require('../assets/images/saved-item-avatar.png'),
+            source: AppImages.savedItemAvatar,
             title: 'Jane Cooper',
             date1: '2022/11/20保存',
             date2: '2022/11/20更新',
@@ -44,7 +45,7 @@ function SavedProfilesScreen() {
     const colorTheme = useColorScheme()
 
     const handleOnPressBack = () => {
-        router.replace('/(tabs)/profile')
+        router.replace('/profile')
     }
 
     const handleOnClickTab = (_tab: Tab) => {
@@ -73,11 +74,11 @@ function SavedProfilesScreen() {
                         <Text style={styles.title}>パブリック</Text>
                     </View>
                 </View>
-                <Image style={[styles.profileBg, { width: windowWidth, height: windowHeight / 4 }]} source={require('../assets/images/saved-profile-bg.jpg')} />
+                <Image style={[styles.profileBg, { width: windowWidth, height: windowHeight / 4 }]} source={AppImages.savedProfileBG} />
 
                 <View style={styles.profileContainer}>
                     <View style={styles.avatarContainer}>
-                        <Image style={[styles.avatar]} source={require('../assets/images/user-avatar.png')} />
+                        <Image style={[styles.avatar]} source={AppImages.userAvatar} />
                         <Text style={{ fontWeight: 'bold' }}>はるこ</Text>
                     </View>
                 </View>

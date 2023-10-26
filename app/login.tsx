@@ -8,6 +8,7 @@ import { Link, router } from 'expo-router';
 import { Text, View } from '../components/Themed';
 import { InputGroup } from '../components/InputGroup';
 import { Button } from '../components/Button';
+import AppImages from '../constants/Images';
 
 export default function LoginScreen() {
   const [isShowPasswordPreview, setIsShowPasswordPreview] = useState(false)
@@ -16,12 +17,12 @@ export default function LoginScreen() {
     setIsShowPasswordPreview(p => !p)
   }
   const handleOnPressLogin = () => {
-    router.replace('/(tabs)')
+    router.replace('/profile')
   }
 
   return (
     <View style={styles.container}>
-      <Image style={styles.logo} source={require('../assets/images/degime-logo.png')} />
+      <Image style={styles.logo} source={AppImages.degimeLogo} />
       <View style={styles.pageContainer}>
         <View style={styles.inputGroup}>
           <Text style={styles.title}>ログイン</Text>
@@ -55,13 +56,13 @@ export default function LoginScreen() {
         </View>
         <View style={styles.socialIconGroup}>
           <TouchableOpacity>
-            <Image style={styles.socialIcon} source={require('../assets/images/facebook-icon.png')} />
+            <Image style={styles.socialIcon} source={AppImages.facebookIcon} />
           </TouchableOpacity>
           <TouchableOpacity>
-            <Image style={styles.socialIcon} source={require('../assets/images/apple-icon.png')} />
+            <Image style={styles.socialIcon} source={AppImages.appleIcon} />
           </TouchableOpacity>
           <TouchableOpacity>
-            <Image style={styles.socialIcon} source={require('../assets/images/google-icon.png')} />
+            <Image style={styles.socialIcon} source={AppImages.googleIcon} />
           </TouchableOpacity>
         </View>
       </View>

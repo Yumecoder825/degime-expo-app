@@ -2,6 +2,7 @@ import { Image } from "expo-image";
 import { StyleSheet, useColorScheme } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Colors from "../../constants/Colors";
+import AppImages from "../../constants/Images";
 import { getDimention } from "../../utils/dimentions";
 import { Text, View } from "../Themed";
 
@@ -23,7 +24,7 @@ export function ProfileBanner() {
             </View>
             <View style={styles.bannerDivider}></View>
             <View style={styles.bannerImageContainer}>
-                <Image style={styles.bannerImage} source={require('../../assets/images/page-banner.png')} />
+                <Image style={styles.bannerImage} source={AppImages.pageBannerImg} />
             </View>
         </View>
 
