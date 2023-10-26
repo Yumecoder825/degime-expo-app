@@ -95,13 +95,19 @@ export default function TabProfileScreen() {
         </View>
       </View>
       <AppModal isVisible={warningModalVisible} onRequestClose={handleWarningModalOnRequestClose}>
-        <Text>書き込むURLがありません。ページの   作成をお願いします。</Text>
-        <View>
+        <Text
+          style={modalStyles.modalHeaderText}
+        >書き込むURLがありません。ページの   作成をお願いします。</Text>
+        <View
+          style={modalStyles.modalContainer}
+        >
           <TouchableOpacity
-            style={[styles.modalButton, { backgroundColor: Colors[colorScheme ?? 'light'].green1 }]}
+            style={[modalStyles.modalButton, { backgroundColor: Colors[colorScheme ?? 'light'].green1 }]}
             onPress={handleOnPressReturn}
           >
-            <Text>戻る</Text>
+            <Text
+              style={modalStyles.modalButtonText}
+            >戻る</Text>
           </TouchableOpacity>
         </View>
       </AppModal>
@@ -201,12 +207,28 @@ const styles = StyleSheet.create({
     right: -20,
     bottom: -4
   },
+});
+
+
+const modalStyles = StyleSheet.create({
+  modalContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
   modalButton: {
     borderRadius: 8,
     marginTop: 20,
     paddingTop: 8,
     paddingBottom: 8,
-    paddingLeft: 40,
-    paddingRight: 40,
+    width: 78,
+  },
+  modalButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+  },
+  modalHeaderText: {
+    textAlign: 'center',
+    fontWeight: '700',
+    fontSize: 16
   }
-});
+})
