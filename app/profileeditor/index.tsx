@@ -231,12 +231,14 @@ export default function ProfileEditorScreen() {
             >
                 <TextWidget />
             </AppModal> */}
-            <AppModal
+            {/* <AppModal
                 isVisible={isShowWidget}
                 onRequestClose={handleOnRequestWidgetClose}
             >
-                <ScheduleWidget />
-            </AppModal>
+                <ScheduleWidget
+                    onPressClose={handleOnRequestWidgetClose}
+                />
+            </AppModal> */}
             {/* <AppModal
                 isVisible={isShowWidget}
                 onRequestClose={handleOnRequestWidgetClose}

@@ -15,8 +15,10 @@ enum PickerFlag {
     publicDate,
     endDate
 }
-
-function ScheduleWidget() {
+type TScheduleWidgetProps = {
+    onPressClose?: TouchableOpacity['props']['onPress'];
+}
+function ScheduleWidget({ onPressClose }: TScheduleWidgetProps) {
     const colorScheme = useColorScheme() || 'light';
 
     const [publicDate, setPublicDate] = useState(new Date());
@@ -54,7 +56,9 @@ function ScheduleWidget() {
                 >
                     予約設定
                 </Text>
-                <TouchableOpacity>
+                <TouchableOpacity
+                    onPress={onPressClose}
+                >
                     <AntDesign name="close" size={18} color="black" />
                 </TouchableOpacity>
             </View>
