@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
         // position: 'relative',
     },
     body: {
-        backgroundColor: 'red',
+        // backgroundColor: 'red',
         height: windowHeight - TabHeight// - (StatusBar.currentHeight || 0)
     },
     tabSection: {
