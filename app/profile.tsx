@@ -3,16 +3,16 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, useColorScheme, TouchableOpacity } from 'react-native';
-import { AppModal } from '../../components/Modal';
-import { SearchInput } from '../../components/SearchInput';
+import { AppModal } from '../components/Modal';
+import { SearchInput } from '../components/SearchInput';
 
-import { Text, View } from '../../components/Themed';
-import Colors from '../../constants/Colors';
-import { getDimention } from '../../utils/dimentions';
+import { Text, View } from '../components/Themed';
+import Colors from '../constants/Colors';
+import { getDimention } from '../utils/dimentions';
 
 const { windowWidth, windowHeight } = getDimention()
 
-export default function TabProfileScreen() {
+export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const [warningModalVisible, setWarningModalVisible] = useState(false);
   const [searchString, setSearchString] = useState('');
