@@ -53,9 +53,9 @@ function RootLayoutNav() {
       <Stack initialRouteName='login'>
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="register" options={{ headerShown: false }} />
-        {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> */}
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         <Stack.Screen name="savedprofiles" options={{ headerShown: false }} />
+        <Stack.Screen name="home" options={{ headerShown: false }} />
         <Stack.Screen name="profileeditor/index"
           options={{
             headerShown: false,

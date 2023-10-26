@@ -1,33 +1,62 @@
-import { AntDesign, FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import React, { useState } from 'react'
-import { TouchableOpacity, StyleSheet } from 'react-native'
+import { TouchableOpacity, StyleSheet, useColorScheme } from 'react-native'
+import { AntDesign, FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { getDimention } from '../../utils/dimentions';
 import { Text, View } from '../Themed'
+import Colors from '../../constants/Colors';
+import { TabHeight } from './Constant';
+import GlobalStyles from '../../constants/GlobalStyles';
+
+
+const { windowWidth } = getDimention()
 
 type TTabItemProps = TouchableOpacity['props'] & {
     actived: boolean;
     renderChildren: (_actived: boolean) => TouchableOpacity['props']['children'];
 }
-function TabItem({ actived, renderChildren }: TTabItemProps) {
+function TabItem({ actived, renderChildren, ...props }: TTabItemProps) {
     return (
-        <TouchableOpacity>
+        <TouchableOpacity
+            {...props}
+        >
             {renderChildren(actived)}
         </TouchableOpacity>
     )
 }
-
-function TabSidebar() {
+type TTabSidebarProps = {
+    onChangeTab?: (tabIndex: number) => void;
+}
+function TabSidebar({ onChangeTab }: TTabSidebarProps) {
+    const colorScheme = useColorScheme() || 'light';
     const [tab, setTab] = useState(0);
+
+    const tabIconColor = Colors[colorScheme].secondary;
+
+    const handleOnPressTab = (_newTab: number) => {
+        setTab(_newTab)
+        onChangeTab && onChangeTab(_newTab)
+    }
 
     return (
         <View
-            style={styles.container}
+            style={[
+                styles.container,
+                GlobalStyles.primaryBoxShadow
+            ]}
         >
             <TabItem
                 actived={tab === 0}
+                onPress={() => handleOnPressTab(0)}
+                style={[
+                    tab === 0 && {
+                        backgroundColor: Colors[colorScheme].secondary
+                    },
+                    styles.tab
+                ]}
                 renderChildren={(active) => {
                     return (
-                        <View>
-                            <MaterialCommunityIcons name="message-processing-outline" style={{ marginBottom: -3 }} size={28} color={active ? 'white' : "black"} />
+                        <>
+                            <MaterialCommunityIcons name="message-processing-outline" style={{ marginBottom: -3 }} size={32} color={active ? 'white' : tabIconColor} />
                             {
                                 active && (
                                     <Text style={styles.tabText}>
@@ -35,16 +64,23 @@ function TabSidebar() {
                                     </Text>
                                 )
                             }
-                        </View>
+                        </>
                     )
                 }}
             />
             <TabItem
                 actived={tab === 1}
+                onPress={() => handleOnPressTab(1)}
+                style={[
+                    tab === 1 && {
+                        backgroundColor: Colors[colorScheme].secondary
+                    },
+                    styles.tab
+                ]}
                 renderChildren={(active) => {
                     return (
-                        <View>
-                            <MaterialCommunityIcons name="bookmark-multiple-outline" style={{ marginBottom: -3 }} size={28} color={active ? 'white' : "black"} />
+                        <>
+                            <MaterialCommunityIcons name="bookmark-multiple-outline" style={{ marginBottom: -3 }} size={32} color={active ? 'white' : tabIconColor} />
                             {
                                 active && (
                                     <Text style={styles.tabText}>
@@ -52,16 +88,23 @@ function TabSidebar() {
                                     </Text>
                                 )
                             }
-                        </View>
+                        </>
                     )
                 }}
             />
             <TabItem
                 actived={tab === 2}
+                onPress={() => handleOnPressTab(2)}
+                style={[
+                    tab === 2 && {
+                        backgroundColor: Colors[colorScheme].secondary
+                    },
+                    styles.tab
+                ]}
                 renderChildren={(active) => {
                     return (
-                        <View>
-                            <MaterialIcons name="perm-contact-calendar" style={{ marginBottom: -3 }} size={28} color={active ? 'white' : "black"} />
+                        <>
+                            <MaterialIcons name="perm-contact-calendar" style={{ marginBottom: -3 }} size={32} color={active ? 'white' : tabIconColor} />
                             {
                                 active && (
                                     <Text style={styles.tabText}>
@@ -69,16 +112,23 @@ function TabSidebar() {
                                     </Text>
                                 )
                             }
-                        </View>
+                        </>
                     )
                 }}
             />
             <TabItem
                 actived={tab === 3}
+                onPress={() => handleOnPressTab(3)}
+                style={[
+                    tab === 3 && {
+                        backgroundColor: Colors[colorScheme].secondary
+                    },
+                    styles.tab
+                ]}
                 renderChildren={(active) => {
                     return (
-                        <View>
-                            <AntDesign name="user" style={{ marginBottom: -3 }} size={28} color={active ? 'white' : "black"} />
+                        <>
+                            <AntDesign name="user" style={{ marginBottom: -3 }} size={32} color={active ? 'white' : tabIconColor} />
                             {
                                 active && (
                                     <Text style={styles.tabText}>
@@ -86,16 +136,23 @@ function TabSidebar() {
                                     </Text>
                                 )
                             }
-                        </View>
+                        </>
                     )
                 }}
             />
             <TabItem
                 actived={tab === 4}
+                onPress={() => handleOnPressTab(4)}
+                style={[
+                    tab === 4 && {
+                        backgroundColor: Colors[colorScheme].secondary
+                    },
+                    styles.tab
+                ]}
                 renderChildren={(active) => {
                     return (
-                        <View>
-                            <FontAwesome name="line-chart" style={{ marginBottom: -3 }} size={28} color={active ? 'white' : "black"} />
+                        <>
+                            <FontAwesome name="line-chart" style={{ marginBottom: -3 }} size={32} color={active ? 'white' : tabIconColor} />
                             {
                                 active && (
                                     <Text style={styles.tabText}>
@@ -103,7 +160,7 @@ function TabSidebar() {
                                     </Text>
                                 )
                             }
-                        </View>
+                        </>
                     )
                 }}
             />
@@ -115,7 +172,19 @@ export default TabSidebar
 
 const styles = StyleSheet.create({
     container: {
-
+        width: windowWidth,
+        height: TabHeight,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+    },
+    tab: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 4,
+        paddingVertical: 4,
+        borderRadius: 4,
     },
     tabText: {
         marginLeft: 4,

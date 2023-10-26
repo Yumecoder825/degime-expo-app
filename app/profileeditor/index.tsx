@@ -35,7 +35,7 @@ export default function ProfileEditorScreen() {
         setIsShowWidget(false)
     }
     const handleOnPressBack = () => {
-        router.replace('/profile')
+        router.replace('/home')
     }
 
     const handleOnPressAvatar = () => {

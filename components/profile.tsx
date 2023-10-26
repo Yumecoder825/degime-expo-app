@@ -3,10 +3,10 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, useColorScheme, TouchableOpacity } from 'react-native';
-import { AppModal } from '../components/Modal';
-import { SearchInput } from '../components/SearchInput';
+import { AppModal } from './Modal';
+import { SearchInput } from './SearchInput';
 
-import { Text, View } from '../components/Themed';
+import { Text, View } from './Themed';
 import Colors from '../constants/Colors';
 import AppImages from '../constants/Images';
 import { getDimention } from '../utils/dimentions';
@@ -40,11 +40,19 @@ export default function ProfileScreen() {
   const handleOnPressLandingPage = () => {
     router.replace('/savedprofiles')
   }
+  const handleOnPressLogo = () => {
+    router.replace('/home')
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.pageContainer}>
-        <Image style={styles.logo} source={AppImages.degimeLogo} />
+        <TouchableOpacity
+          style={styles.logoContainer}
+          onPress={handleOnPressLogo}
+        >
+          <Image style={styles.logo} source={AppImages.degimeLogo} />
+        </TouchableOpacity>
         <Image style={[styles.profileBg, { width: windowWidth, height: windowHeight / 4 }]} source={AppImages.profileBg} />
         <View style={styles.profileContainer}>
           <View style={styles.avatarContainer}>
@@ -138,13 +146,15 @@ const styles = StyleSheet.create({
     zIndex: 10,
     position: 'relative',
   },
+  logoContainer: {
+    top: 0,
+    left: 0,
+    position: 'absolute',
+    zIndex: 1,
+  },
   logo: {
     width: 100,
     height: 100,
-    zIndex: 1,
-    position: 'absolute',
-    left: 0,
-    top: 0
   },
   profileBg: {
     width: 'auto'
