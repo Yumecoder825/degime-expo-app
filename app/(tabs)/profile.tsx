@@ -15,6 +15,7 @@ const { windowWidth, windowHeight } = getDimention()
 export default function TabProfileScreen() {
   const colorScheme = useColorScheme();
   const [warningModalVisible, setWarningModalVisible] = useState(false);
+  const [searchString, setSearchString] = useState('');
 
   const handleOnPressOnlineBusinessCard = () => {
     setWarningModalVisible(true)
@@ -27,6 +28,11 @@ export default function TabProfileScreen() {
   const handleOnPressReturn = () => {
     setWarningModalVisible(false)
   }
+
+  const handleOnChangeSearchText = (_text: string) => {
+    setSearchString(_text)
+  }
+
   const handleOnPressSnsProfile = () => {
     router.replace('/profileeditor')
   }
@@ -52,7 +58,11 @@ export default function TabProfileScreen() {
           </View>
         </View>
         <View style={styles.subContainer}>
-          <SearchInput placeholder='検索' />
+          <SearchInput placeholder='検索' 
+            onChangeText={handleOnChangeSearchText}
+            value={searchString}
+            onPressClose={() => handleOnChangeSearchText('')}
+          />
           <View style={{ marginTop: 40, flexDirection: 'column', gap: 8 }}>
             <TouchableOpacity style={styles.button}
               onPress={handleOnPressOnlineBusinessCard}
@@ -120,7 +130,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   pageContainer: {
-    position: 'relative'
+    position: 'relative',
+    height: windowHeight,
   },
   profileContainer: {
     zIndex: 10,
