@@ -13,6 +13,10 @@ import { SliderWidget } from "../../components/profileeditor/widgets/SliderWidge
 import SmallImageWidget from "../../components/profileeditor/widgets/SmallImageWidget";
 import YoutubeWidget from "../../components/profileeditor/widgets/YoutubeWidget";
 import MapWidget from "../../components/profileeditor/widgets/MapWidget";
+import MarginWidget from "../../components/profileeditor/widgets/MarginWidget";
+import TextWidget from "../../components/profileeditor/widgets/TextWidget";
+import ScheduleWidget from "../../components/profileeditor/widgets/ScheduleWidget";
+import AppImages from "../../constants/Images";
 
 const { windowWidth, windowHeight } = getDimention()
 
@@ -31,7 +35,7 @@ export default function ProfileEditorScreen() {
         setIsShowWidget(false)
     }
     const handleOnPressBack = () => {
-        router.replace('/profile')
+        router.replace('/home')
     }
 
     const handleOnPressAvatar = () => {
@@ -85,7 +89,7 @@ export default function ProfileEditorScreen() {
                             <TouchableOpacity
                                 onPress={handleOnPressAvatar}
                             >
-                                <Image style={styles.userAvatar} source={require('../../assets/images/user-avatar.png')} />
+                                <Image style={styles.userAvatar} source={AppImages.userAvatar} />
                             </TouchableOpacity>
                             <View style={styles.profileGroup}>
                                 <TextInput style={[styles.userName, { backgroundColor: Colors[colorTheme ?? 'light'].primary }]}
@@ -93,13 +97,13 @@ export default function ProfileEditorScreen() {
                                 />
                                 <View style={styles.chatIconGroup}>
                                     <TouchableOpacity>
-                                        <Image style={styles.chatIcon} source={require('../../assets/images/chatwork-icon.png')} />
+                                        <Image style={styles.chatIcon} source={AppImages.chatworkIcon} />
                                     </TouchableOpacity>
                                     <TouchableOpacity>
-                                        <Image style={styles.chatIcon} source={require('../../assets/images/line-icon.png')} />
+                                        <Image style={styles.chatIcon} source={AppImages.lineIcon} />
                                     </TouchableOpacity>
                                     <TouchableOpacity>
-                                        <Image style={styles.chatIcon} source={require('../../assets/images/skill-icons_instagram.png')} />
+                                        <Image style={styles.chatIcon} source={AppImages.skillIconInstagram} />
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -210,12 +214,32 @@ export default function ProfileEditorScreen() {
             >
                 <SmallImageWidget />
             </AppModal> */}
-            <AppModal
+            {/* <AppModal
                 isVisible={isShowWidget}
                 onRequestClose={handleOnRequestWidgetClose}
             >
                 <MapWidget />
-            </AppModal>
+            </AppModal> */}
+            {/* <AppModal
+                isVisible={isShowWidget}
+                onRequestClose={handleOnRequestWidgetClose}
+            >
+                <MarginWidget />
+            </AppModal> */}
+            {/* <AppModal
+                isVisible={isShowWidget}
+                onRequestClose={handleOnRequestWidgetClose}
+            >
+                <TextWidget />
+            </AppModal> */}
+            {/* <AppModal
+                isVisible={isShowWidget}
+                onRequestClose={handleOnRequestWidgetClose}
+            >
+                <ScheduleWidget
+                    onPressClose={handleOnRequestWidgetClose}
+                />
+            </AppModal> */}
             {/* <AppModal
                 isVisible={isShowWidget}
                 onRequestClose={handleOnRequestWidgetClose}

@@ -3,18 +3,20 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, useColorScheme, TouchableOpacity } from 'react-native';
-import { AppModal } from '../../components/Modal';
-import { SearchInput } from '../../components/SearchInput';
+import { AppModal } from './Modal';
+import { SearchInput } from './SearchInput';
 
-import { Text, View } from '../../components/Themed';
-import Colors from '../../constants/Colors';
-import { getDimention } from '../../utils/dimentions';
+import { Text, View } from './Themed';
+import Colors from '../constants/Colors';
+import AppImages from '../constants/Images';
+import { getDimention } from '../utils/dimentions';
 
 const { windowWidth, windowHeight } = getDimention()
 
-export default function TabProfileScreen() {
+export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const [warningModalVisible, setWarningModalVisible] = useState(false);
+  const [searchString, setSearchString] = useState('');
 
   const handleOnPressOnlineBusinessCard = () => {
     setWarningModalVisible(true)
@@ -27,21 +29,34 @@ export default function TabProfileScreen() {
   const handleOnPressReturn = () => {
     setWarningModalVisible(false)
   }
+
+  const handleOnChangeSearchText = (_text: string) => {
+    setSearchString(_text)
+  }
+
   const handleOnPressSnsProfile = () => {
     router.replace('/profileeditor')
   }
   const handleOnPressLandingPage = () => {
     router.replace('/savedprofiles')
   }
+  const handleOnPressLogo = () => {
+    router.replace('/home')
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.pageContainer}>
-        <Image style={styles.logo} source={require('../../assets/images/degime-logo.png')} />
-        <Image style={[styles.profileBg, { width: windowWidth, height: windowHeight / 4 }]} source={require('../../assets/images/profile-bg.png')} />
+        <TouchableOpacity
+          style={styles.logoContainer}
+          onPress={handleOnPressLogo}
+        >
+          <Image style={styles.logo} source={AppImages.degimeLogo} />
+        </TouchableOpacity>
+        <Image style={[styles.profileBg, { width: windowWidth, height: windowHeight / 4 }]} source={AppImages.profileBg} />
         <View style={styles.profileContainer}>
           <View style={styles.avatarContainer}>
-            <Image style={[styles.avatar]} source={require('../../assets/images/user-avatar.png')} />
+            <Image style={[styles.avatar]} source={AppImages.userAvatar} />
             <Text style={{ fontWeight: 'bold' }}>はるこ</Text>
             <Text style={{ fontWeight: 'bold' }}>https://myprofile.co</Text>
           </View>
@@ -52,7 +67,11 @@ export default function TabProfileScreen() {
           </View>
         </View>
         <View style={styles.subContainer}>
-          <SearchInput placeholder='検索' />
+          <SearchInput placeholder='検索'
+            onChangeText={handleOnChangeSearchText}
+            value={searchString}
+            onPressClose={() => handleOnChangeSearchText('')}
+          />
           <View style={{ marginTop: 40, flexDirection: 'column', gap: 8 }}>
             <TouchableOpacity style={styles.button}
               onPress={handleOnPressOnlineBusinessCard}
@@ -77,31 +96,43 @@ export default function TabProfileScreen() {
           <View style={styles.smallButtonsContainer}>
             <TouchableOpacity style={[styles.smallButton, { backgroundColor: Colors[colorScheme ?? 'light'].green1 }]}>
               <View style={styles.smallContainer}>
-                <Text>チャット</Text>
+                <Text
+                  style={styles.smallButtonText}
+                >チャット</Text>
                 <Text style={[styles.badge, { backgroundColor: Colors[colorScheme ?? 'light'].orange1 }]}>5</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.smallButton, { backgroundColor: Colors[colorScheme ?? 'light'].orange1 }]}>
               <View style={styles.smallContainer}>
-                <Text>degimeカードに書き込む</Text>
+                <Text
+                  style={styles.smallButtonText}
+                >degimeカードに書き込む</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.smallButton, { backgroundColor: Colors[colorScheme ?? 'light'].orange2 }]}>
               <View style={styles.smallContainer}>
-                <Text>degimeカード購入する</Text>
+                <Text
+                  style={styles.smallButtonText}
+                >degimeカード購入する</Text>
               </View>
             </TouchableOpacity>
           </View>
         </View>
       </View>
       <AppModal isVisible={warningModalVisible} onRequestClose={handleWarningModalOnRequestClose}>
-        <Text>書き込むURLがありません。ページの   作成をお願いします。</Text>
-        <View>
+        <Text
+          style={modalStyles.modalHeaderText}
+        >書き込むURLがありません。ページの   作成をお願いします。</Text>
+        <View
+          style={modalStyles.modalContainer}
+        >
           <TouchableOpacity
-            style={[styles.modalButton, { backgroundColor: Colors[colorScheme ?? 'light'].green1 }]}
+            style={[modalStyles.modalButton, { backgroundColor: Colors[colorScheme ?? 'light'].green1 }]}
             onPress={handleOnPressReturn}
           >
-            <Text>戻る</Text>
+            <Text
+              style={modalStyles.modalButtonText}
+            >戻る</Text>
           </TouchableOpacity>
         </View>
       </AppModal>
@@ -114,19 +145,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   pageContainer: {
-    position: 'relative'
+    position: 'relative',
+    height: windowHeight,
   },
   profileContainer: {
     zIndex: 10,
     position: 'relative',
   },
+  logoContainer: {
+    top: 0,
+    left: 0,
+    position: 'absolute',
+    zIndex: 1,
+  },
   logo: {
     width: 100,
     height: 100,
-    zIndex: 1,
-    position: 'absolute',
-    left: 0,
-    top: 0
   },
   profileBg: {
     width: 'auto'
@@ -191,6 +225,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
+  smallButtonText: {
+    color: '#fff'
+  },
   badge: {
     marginTop: 12,
     borderRadius: 999,
@@ -201,12 +238,28 @@ const styles = StyleSheet.create({
     right: -20,
     bottom: -4
   },
+});
+
+
+const modalStyles = StyleSheet.create({
+  modalContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
   modalButton: {
     borderRadius: 8,
     marginTop: 20,
     paddingTop: 8,
     paddingBottom: 8,
-    paddingLeft: 40,
-    paddingRight: 40,
+    width: 78,
+  },
+  modalButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+  },
+  modalHeaderText: {
+    textAlign: 'center',
+    fontWeight: '700',
+    fontSize: 16
   }
-});
+})

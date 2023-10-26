@@ -10,7 +10,7 @@ type Props = {
 } & TextInput['props'];
 
 export function SearchInput(props: Props) {
-    const { ...otherProps } = props;
+    const { onPressClose, ...otherProps } = props;
     const colorScheme = useColorScheme();
 
     return (
@@ -24,7 +24,9 @@ export function SearchInput(props: Props) {
                 placeholderTextColor='#fff'
                 {...otherProps}
             />
-            <TouchableOpacity>
+            <TouchableOpacity
+                onPress={onPressClose}
+            >
                 <AntDesign name="closecircle" size={20} color="white" />
             </TouchableOpacity>
         </View>

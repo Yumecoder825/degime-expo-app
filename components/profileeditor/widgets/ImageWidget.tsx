@@ -71,15 +71,15 @@ const defaultImgWidget = {
 
 export function ImageWidget() {
     const [widgets, setWidgets] = useState<TImageWidgets>([{
-        source: require('../../../assets/images/widget-image.png'),
+        source: AppImages.widgetImg,
         title: '私の写真1',
         description: '私の写真のテキスト1',
     }, {
-        source: require('../../../assets/images/widget-image.png'),
+        source: AppImages.widgetImg,
         title: '私の写真1',
         description: '私の写真のテキスト1',
     }, {
-        source: require('../../../assets/images/widget-image.png'),
+        source: AppImages.widgetImg,
         title: '私の写真1',
         description: '私の写真のテキスト1'
     }])
