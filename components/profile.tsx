@@ -96,18 +96,24 @@ export default function ProfileScreen() {
           <View style={styles.smallButtonsContainer}>
             <TouchableOpacity style={[styles.smallButton, { backgroundColor: Colors[colorScheme ?? 'light'].green1 }]}>
               <View style={styles.smallContainer}>
-                <Text>チャット</Text>
+                <Text
+                  style={styles.smallButtonText}
+                >チャット</Text>
                 <Text style={[styles.badge, { backgroundColor: Colors[colorScheme ?? 'light'].orange1 }]}>5</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.smallButton, { backgroundColor: Colors[colorScheme ?? 'light'].orange1 }]}>
               <View style={styles.smallContainer}>
-                <Text>degimeカードに書き込む</Text>
+                <Text
+                  style={styles.smallButtonText}
+                >degimeカードに書き込む</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.smallButton, { backgroundColor: Colors[colorScheme ?? 'light'].orange2 }]}>
               <View style={styles.smallContainer}>
-                <Text>degimeカード購入する</Text>
+                <Text
+                  style={styles.smallButtonText}
+                >degimeカード購入する</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -218,6 +224,9 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+  smallButtonText: {
+    color: '#fff'
   },
   badge: {
     marginTop: 12,
