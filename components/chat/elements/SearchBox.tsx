@@ -2,9 +2,13 @@ import React from 'react'
 import { StyleSheet, TextInput, TouchableOpacity, useColorScheme } from 'react-native'
 import { Fontisto } from '@expo/vector-icons';
 import Colors from '../../../constants/Colors';
-import { View } from '../../Themed'
+import { ThemeColorName, View } from '../../Themed'
 
-function SearchBox() {
+type TSearchBoxProps = {
+    inputBg?: ThemeColorName
+}
+
+function SearchBox({ inputBg }: TSearchBoxProps) {
     const colorScheme = useColorScheme() || 'light'
 
     return (
@@ -14,7 +18,7 @@ function SearchBox() {
             <TextInput
                 style={[
                     styles.textInput, {
-                        backgroundColor: Colors[colorScheme].gray3
+                        backgroundColor: inputBg ? Colors[colorScheme][inputBg] : Colors[colorScheme].gray3
                     }
                 ]}
             />

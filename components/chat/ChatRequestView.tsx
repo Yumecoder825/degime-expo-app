@@ -3,6 +3,8 @@ import React, { useState } from 'react'
 import { ScrollView, StyleSheet, TouchableOpacity, useColorScheme } from 'react-native'
 import Colors from '../../constants/Colors'
 import AppImages from '../../constants/Images'
+import { AppModal } from '../Modal'
+import ConfirmModal from '../modals/ConfirmModal'
 import { TabHeight } from '../Tab/Constant'
 import { Text, View } from '../Themed'
 import SearchBox from './elements/SearchBox'
@@ -11,8 +13,10 @@ import UserListItemView, { TUserListItemViewProps } from './elements/UserListIte
 
 type Profile = Omit<TUserListItemViewProps, 'onPressChat'>
 
-function index() {
+function ChatRequestView() {
     const colorScheme = useColorScheme() || 'light'
+
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     const [profiles] = useState<Profile[]>([
         {
@@ -150,8 +154,20 @@ function index() {
     ])
 
     const handleOnPressBack = () => {
-
     }
+
+    const handleOnPressChat = () => {
+        setShowConfirmModal(true)
+    }
+
+    const handleOnRequestClose = () => {
+        setShowConfirmModal(false)
+    }
+
+    const handleOnPressCancel = () => {
+        setShowConfirmModal(false)
+    }
+
 
     return (
         <View
@@ -186,17 +202,25 @@ function index() {
                     {
                         profiles.map((p, idx) => {
                             return (
-                                <UserListItemView key={idx} phone={p.phone} date={p.date} title={p.title} source={p.source} />
+                                <UserListItemView key={idx} phone={p.phone} date={p.date} title={p.title} source={p.source}
+                                    onPressChat={handleOnPressChat}
+                                />
                             )
                         })
                     }
                 </ScrollView>
             </View>
+            <ConfirmModal 
+                showConfirmModal={showConfirmModal}
+                msg='本当にこの人にチャットを申し込みますか？'
+                handleOnRequestClose={handleOnRequestClose}
+                onPressCancel={handleOnPressCancel}
+            />
         </View>
     )
 }
 
-export default index
+export default ChatRequestView
 
 const styles = StyleSheet.create({
     container: {
@@ -227,5 +251,33 @@ const styles = StyleSheet.create({
     scrollView: {
         marginTop: 40,
         paddingHorizontal: 8,
+    }
+})
+
+const mStyles = StyleSheet.create({
+    container: {
+        paddingVertical: 12,
+        paddingHorizontal: 8,
+    },
+    headerText: {
+        fontSize: 20,
+        lineHeight: 30,
+        fontWeight: '700',
+        textAlign: 'center',
+    },
+    actionSection: {
+        marginTop: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 20,
+    },
+    button: {
+        flex: 1,
+        paddingVertical: 4,
+        borderRadius: 4,
+        borderWidth: 1,
+    },
+    buttonText: {
+        textAlign: 'center'
     }
 })

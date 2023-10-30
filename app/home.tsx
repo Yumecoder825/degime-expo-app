@@ -3,7 +3,8 @@ import { StyleSheet, StatusBar, SafeAreaView, ScrollView } from 'react-native'
 
 import TabSidebar from '../components/Tab/TabSidebar'
 import ProfileSection from '../components/profile'
-import ChatSection from '../components/chat'
+import ChatRequestView from '../components/chat/ChatRequestView'
+import ChatListView from '../components/chat/ChatListView'
 import { View } from '../components/Themed'
 import { getDimention } from '../utils/dimentions'
 import { TabHeight } from '../components/Tab/Constant'
@@ -19,7 +20,7 @@ function home() {
 
     const component = useMemo(() => {
         if (tab === 0) {
-            return <ChatSection />
+            return <ChatListView />
         } else if (tab === 3) {
             return <ProfileSection />
         }
