@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableWithoutFeedback } from 'react-native'
 import AppImages from '../../constants/Images'
+import { useHomeContext } from '../../Context/HomeContext'
 import { getDimention } from '../../utils/dimentions'
 import { TabHeight } from '../Tab/Constant'
 import { View } from '../Themed'
@@ -10,6 +11,8 @@ import MessageView, { TMessageViewProps } from './elements/MessageView'
 const { windowHeight } = getDimention()
 
 function ChatView() {
+    const { setShowMenu } = useHomeContext()
+
     const [messages] = useState<TMessageViewProps[]>([{
         text: '今日はビーチに行きます。'
     }, {
@@ -57,6 +60,14 @@ function ChatView() {
         text: '素晴らしい！',
         byMe: true,
     },])
+
+    useEffect(() => {
+        setShowMenu(false);
+
+        return () => {
+            setShowMenu(true);
+        }
+    }, [])
 
     return (
         <View

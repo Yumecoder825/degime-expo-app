@@ -10,11 +10,13 @@ import ChatView from '../components/chat/ChatView'
 import { View } from '../components/Themed'
 import { getDimention } from '../utils/dimentions'
 import { TabHeight } from '../components/Tab/Constant'
+import { HomeContext } from '../Context/HomeContext'
 
 const { windowHeight } = getDimention()
 
 function home() {
     const [tab, setTab] = useState(0)
+    const [showMenu, setShowMenu] = useState(false)
 
     const handleOnChangeTab = (_tab: number) => {
         setTab(_tab)
@@ -29,22 +31,34 @@ function home() {
     }, [tab])
 
     return (
-        <SafeAreaView
-            style={styles.container}
+        <HomeContext.Provider
+            value={{
+                showMenu: showMenu,
+                setShowMenu: setShowMenu
+            }}
         >
-            <View
-                style={styles.body}
+            <SafeAreaView
+                style={styles.container}
             >
-                {component}
-            </View>
-            {/* <View
-                style={styles.tabSection}
-            >
-                <TabSidebar
-                    onChangeTab={handleOnChangeTab}
-                />
-            </View> */}
-        </SafeAreaView>
+                <View
+                    style={styles.body}
+                >
+                    {component}
+                </View>
+                {
+                    showMenu && (
+                        <View
+                            style={styles.tabSection}
+                        >
+                            <TabSidebar
+                                onChangeTab={handleOnChangeTab}
+                            />
+                        </View>
+                    )
+                }
+            </SafeAreaView>
+        </HomeContext.Provider>
+
     )
 }
 
