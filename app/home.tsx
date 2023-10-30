@@ -5,7 +5,8 @@ import TabSidebar from '../components/Tab/TabSidebar'
 import ProfileSection from '../components/profile'
 // import ChatRequestView from '../components/chat/ChatRequestView'
 // import ChatListView from '../components/chat/ChatListView'
-import AddNewGroupView from '../components/chat/AddNewGroupView'
+// import AddNewGroupView from '../components/chat/AddNewGroupView'
+import ChatView from '../components/chat/ChatView'
 import { View } from '../components/Themed'
 import { getDimention } from '../utils/dimentions'
 import { TabHeight } from '../components/Tab/Constant'
@@ -21,7 +22,7 @@ function home() {
 
     const component = useMemo(() => {
         if (tab === 0) {
-            return <AddNewGroupView />
+            return <ChatView />
         } else if (tab === 3) {
             return <ProfileSection />
         }
@@ -36,13 +37,13 @@ function home() {
             >
                 {component}
             </View>
-            <View
+            {/* <View
                 style={styles.tabSection}
             >
                 <TabSidebar
                     onChangeTab={handleOnChangeTab}
                 />
-            </View>
+            </View> */}
         </SafeAreaView>
     )
 }
