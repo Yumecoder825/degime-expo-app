@@ -41,7 +41,11 @@ function home() {
                 style={styles.container}
             >
                 <View
-                    style={styles.body}
+                    style={[
+                        styles.body, {
+                            height: showMenu ? windowHeight - TabHeight : windowHeight
+                        }
+                    ]}
                 >
                     {component}
                 </View>

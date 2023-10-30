@@ -3,7 +3,6 @@ import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Touch
 import AppImages from '../../constants/Images'
 import { useHomeContext } from '../../Context/HomeContext'
 import { getDimention } from '../../utils/dimentions'
-import { TabHeight } from '../Tab/Constant'
 import { View } from '../Themed'
 import ChatSendForm from './elements/ChatSendForm'
 import MessageView, { TMessageViewProps } from './elements/MessageView'
@@ -12,6 +11,7 @@ const { windowHeight } = getDimention()
 
 function ChatView() {
     const { setShowMenu } = useHomeContext()
+    const [isVisible, setIsVisible] = useState(false)
 
     const [messages] = useState<TMessageViewProps[]>([{
         text: '今日はビーチに行きます。'
@@ -61,6 +61,13 @@ function ChatView() {
         byMe: true,
     },])
 
+    const onFocus = () => {
+        setIsVisible(true)
+    }
+    const onBlur = () => {
+        setIsVisible(false)
+    }
+
     useEffect(() => {
         setShowMenu(false);
 
@@ -70,13 +77,15 @@ function ChatView() {
     }, [])
 
     return (
-        <View
-            style={styles.container}
-        >
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            >
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.container}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={[
+                    styles.inner, {
+                        marginBottom: isVisible ? 50 : 0
+                    }
+                ]}>
                     <View
                         style={styles.chatList}
                     >
@@ -93,10 +102,10 @@ function ChatView() {
                             }
                         </ScrollView>
                     </View>
-                </TouchableWithoutFeedback>
-                <ChatSendForm />
-            </KeyboardAvoidingView>
-        </View>
+                    <ChatSendForm onFocus={onFocus} onBlur={onBlur} />
+                </View>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     )
 }
 
@@ -104,11 +113,31 @@ export default ChatView
 
 const styles = StyleSheet.create({
     container: {
-        padding: 8
+        flex: 1,
+        // backgroundColor: 'red'
+    },
+    inner: {
+        padding: 24,
+        flex: 1,
+        justifyContent: 'space-around',
+    },
+    header: {
+        fontSize: 36,
+        marginBottom: 48,
+    },
+    textInput: {
+        height: 40,
+        borderColor: '#000000',
+        borderBottomWidth: 1,
+        marginBottom: 36,
+    },
+    btnContainer: {
+        backgroundColor: 'white',
+        marginTop: 12,
     },
     chatList: {
         flexDirection: 'column',
         gap: 16,
-        maxHeight: windowHeight - 68 //TabHeight
+        marginBottom: 40
     }
-})
+});

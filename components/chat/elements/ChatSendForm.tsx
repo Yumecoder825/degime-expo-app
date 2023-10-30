@@ -4,9 +4,14 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons'
 import Colors from '../../../constants/Colors'
 import { View } from '../../Themed'
 
-function ChatSendForm() {
-    const colorScheme = useColorScheme() || 'light';
 
+type TChatSendFormProps = TextInput['props'] & {
+    onPressSend?: TouchableOpacity['props']['onPress'];
+    onPressCamera?: TouchableOpacity['props']['onPress'];
+}
+
+function ChatSendForm({ onPressSend, onPressCamera, ...props }: TChatSendFormProps) {
+    const colorScheme = useColorScheme() || 'light';
 
     return (
         <View
@@ -24,6 +29,7 @@ function ChatSendForm() {
                                 styles.input,
                             ]}
                             multiline
+                            {...props}
                         />
                     </View>
                     <View
@@ -35,6 +41,7 @@ function ChatSendForm() {
                                     backgroundColor: Colors[colorScheme].green3
                                 }
                             ]}
+                            onPress={onPressCamera}
                         >
                             <FontAwesome name="camera" size={24} color="white" />
                         </TouchableOpacity>
@@ -44,6 +51,7 @@ function ChatSendForm() {
                                     backgroundColor: Colors[colorScheme].purple2
                                 }
                             ]}
+                            onPress={onPressSend}
                         >
                             <Ionicons name="chatbubble-sharp" size={24} color="white" />
                         </TouchableOpacity>
