@@ -1,9 +1,10 @@
-import { FontAwesome } from '@expo/vector-icons'
+import { FontAwesome, Ionicons } from '@expo/vector-icons'
 import React, { useState } from 'react'
-import { ScrollView, StyleSheet, TouchableOpacity, useColorScheme } from 'react-native'
+import { ScrollView, StyleSheet, Touchable, TouchableOpacity, useColorScheme } from 'react-native'
 import Colors from '../../constants/Colors'
 import AppImages from '../../constants/Images'
 import { getDimention } from '../../utils/dimentions'
+import AddGroupModal from '../modals/AddGroupModal'
 import ConfirmModal from '../modals/ConfirmModal'
 import { TabHeight } from '../Tab/Constant'
 import { Text, View } from '../Themed'
@@ -85,8 +86,11 @@ const tStyles = StyleSheet.create({
 type Profile = Omit<TChatListItemProps, 'onPressChat'>
 
 function ChatListView() {
+    const colorScheme = useColorScheme() || 'light'
+
     const [tab, setTab] = useState(0);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showAddGroupModal, setShowAddGroupModal] = useState(false);
     const [isSelectMode, setIsSelectMode] = useState(false);
 
 
@@ -131,6 +135,10 @@ function ChatListView() {
     }
     const handleOnPressTrash = () => {
         setIsSelectMode(false)
+    }
+
+    const handleOnRequestCloseAddGroup = () => {
+        setShowAddGroupModal(false)
     }
 
     return (
@@ -197,11 +205,27 @@ function ChatListView() {
                     </ScrollView>
                 </View>
             </View>
+            <TouchableOpacity
+                style={[
+                    styles.addButton, {
+                        backgroundColor: Colors[colorScheme].orange1
+                    }
+                ]}
+                onPress={() => {
+                    setShowAddGroupModal(true)
+                }}
+            >
+                <Ionicons name="add-sharp" size={28} color="white" />
+            </TouchableOpacity>
             <ConfirmModal
                 showConfirmModal={showConfirmModal}
                 msg='本当にこのユーザーをチャットに承認しますか？'
                 handleOnRequestClose={handleOnRequestClose}
                 onPressCancel={handleOnPressCancel}
+            />
+            <AddGroupModal
+                showModal={showAddGroupModal}
+                onRequestClose={handleOnRequestCloseAddGroup}
             />
         </View>
     )
@@ -245,5 +269,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-end',
         paddingRight: 32
+    },
+    addButton: {
+        position: 'absolute',
+        zIndex: 10,
+        right: 36,
+        bottom: 36,
+        borderRadius: 999,
+        backgroundColor: 'red',
+        padding: 8
     }
 })
