@@ -1,3 +1,4 @@
+import { FontAwesome } from '@expo/vector-icons'
 import React, { useState } from 'react'
 import { ScrollView, StyleSheet, TouchableOpacity, useColorScheme } from 'react-native'
 import Colors from '../../constants/Colors'
@@ -86,6 +87,7 @@ type Profile = Omit<TChatListItemProps, 'onPressChat'>
 function ChatListView() {
     const [tab, setTab] = useState(0);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [isSelectMode, setIsSelectMode] = useState(false);
 
 
     const [profiles] = useState<Profile[]>([
@@ -124,6 +126,13 @@ function ChatListView() {
         setShowConfirmModal(true)
     }
 
+    const handleOnLongPressChatItem = () => {
+        setIsSelectMode(true)
+    }
+    const handleOnPressTrash = () => {
+        setIsSelectMode(false)
+    }
+
     return (
         <View>
             <View
@@ -160,13 +169,28 @@ function ChatListView() {
                 <View
                     style={styles.tabContainer}
                 >
+                    {
+                        isSelectMode && (
+                            <View
+                                style={styles.tabAction}
+                            >
+                                <TouchableOpacity
+                                    onPress={handleOnPressTrash}
+                                >
+                                    <FontAwesome name="trash-o" size={18} color="black" />
+                                </TouchableOpacity>
+                            </View>
+                        )
+                    }
                     <ScrollView>
                         {
                             profiles.concat(new Array(20).fill(profiles[0])).map((item, idx) => (
                                 <ChatListItemView
                                     key={idx}
-                                    onPress={handleOnPressChatItem}
                                     {...item}
+                                    onPress={handleOnPressChatItem}
+                                    onLongPress={handleOnLongPressChatItem}
+                                    isSelectMode={isSelectMode}
                                 />
                             ))
                         }
@@ -215,6 +239,11 @@ const styles = StyleSheet.create({
         marginTop: 24,
         paddingHorizontal: 12,
 
-        height: windowHeight - TabHeight - 180
+        height: windowHeight - TabHeight - 180 // 24 is for select mode
+    },
+    tabAction: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        paddingRight: 32
     }
 })

@@ -1,11 +1,13 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { StyleSheet, TouchableOpacity, useColorScheme } from "react-native";
 import { Image } from "expo-image";
 import { Text, View } from "../../Themed";
 import Colors from "../../../constants/Colors";
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 
 export type TChatListItemProps = TouchableOpacity['props'] & {
     source: Image['props']['source'];
+    isSelectMode?: boolean;
     newMsgCount?: string;
     avatarSize?: 'sm' | 'md';
     status?: 'online' | 'offline' | 'away';
@@ -14,8 +16,10 @@ export type TChatListItemProps = TouchableOpacity['props'] & {
     date: string;
 }
 
-function ChatListItemView({ source, newMsgCount, title, lastMsg, date, status = 'away', avatarSize = 'md', ...props }: TChatListItemProps) {
-    const colorScheme = useColorScheme() || 'light'
+function ChatListItemView({ source, newMsgCount, title, lastMsg, isSelectMode = false, date, status = 'away', avatarSize = 'md', ...props }: TChatListItemProps) {
+    const colorScheme = useColorScheme() || 'light';
+
+    const [isChecked, setIsChecked] = useState(false)
 
     const clr = useMemo(() => {
         if (status === 'online') {
@@ -25,6 +29,10 @@ function ChatListItemView({ source, newMsgCount, title, lastMsg, date, status = 
         }
         return '#FAFF00'
     }, [status])
+
+    const handleOnPressCheckBox = (_checked: boolean) => {
+        setIsChecked(_checked)
+    }
 
     return (
         <TouchableOpacity style={styles.container}
@@ -60,7 +68,10 @@ function ChatListItemView({ source, newMsgCount, title, lastMsg, date, status = 
                     style={[
                         styles.userActiveStatus, {
                             backgroundColor: clr
-                        }
+                        }, newMsgCount ? {
+                            bottom: 0,
+                            right: -6
+                        } : {}
                     ]}
                 ></View>
             </View>
@@ -88,6 +99,26 @@ function ChatListItemView({ source, newMsgCount, title, lastMsg, date, status = 
                         {date}
                     </Text>
                 </View>
+                {
+                    isSelectMode && (
+                        <BouncyCheckbox
+                            iconStyle={[
+                                styles.checkboxIcon, isChecked && {
+                                    backgroundColor: '#4C31F4',
+                                }
+                            ]}
+                            innerIconStyle={[
+                                styles.checkboxInnerIcon, {
+                                    borderColor: '#0008'
+                                },
+                                isChecked && {
+                                    borderColor: '#4C31F4',
+                                }
+                            ]}
+                            onPress={handleOnPressCheckBox}
+                        />
+                    )
+                }
             </View>
         </TouchableOpacity>
     )
@@ -163,7 +194,7 @@ const styles = StyleSheet.create({
         borderRadius: 999,
         width: 8,
         height: 8,
-        bottom: 0,
+        bottom: 4,
         right: 0,
     },
     btn: {
@@ -191,7 +222,17 @@ const styles = StyleSheet.create({
     subSection: {
         flexDirection: 'row',
         gap: 8
-    }
+    },
+    checkboxIcon: {
+        borderRadius: 999,
+        width: 15,
+        height: 15,
+    },
+    checkboxInnerIcon: {
+        borderRadius: 999,
+        width: 15,
+        height: 15
+    },
 })
 
 export default ChatListItemView
