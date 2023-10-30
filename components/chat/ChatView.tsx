@@ -84,7 +84,8 @@ function ChatView() {
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={[
                     styles.inner, {
-                        marginBottom: isVisible ? 50 : 0
+                        paddingBottom: isVisible ? 50 : 0,
+                        height: windowHeight,
                     }
                 ]}>
                     <ChanelMembersView
@@ -93,7 +94,8 @@ function ChatView() {
                             AppImages.userAvatar,
                             AppImages.userAvatar,
                             AppImages.userAvatar,
-                        ]} isGroup={true}
+                        ]}
+                        isGroup={true}
                     />
                     <View
                         style={styles.chatList}
@@ -125,12 +127,10 @@ export default ChatView
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // backgroundColor: 'red'
     },
     inner: {
         flex: 1,
         paddingHorizontal: 24,
-        justifyContent: 'space-around',
     },
     header: {
         fontSize: 36,
@@ -147,12 +147,8 @@ const styles = StyleSheet.create({
         marginTop: 12,
     },
     chatList: {
-        height: windowHeight - (StatusBar.currentHeight || 0) - 80,
-        paddingTop: 20,
-        paddingBottom: 12,
+        flex: 1
     },
     scrollView: {
-        flexDirection: 'column',
-        gap: 12,
     }
 });
