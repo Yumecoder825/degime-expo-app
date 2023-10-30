@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableWithoutFeedback } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StatusBar, StyleSheet, TouchableWithoutFeedback } from 'react-native'
 import AppImages from '../../constants/Images'
 import { useHomeContext } from '../../Context/HomeContext'
 import { getDimention } from '../../utils/dimentions'
 import { View } from '../Themed'
+import ChanelMembersView from './elements/ChanelMembersView'
 import ChatSendForm from './elements/ChatSendForm'
 import MessageView, { TMessageViewProps } from './elements/MessageView'
 
@@ -86,10 +87,20 @@ function ChatView() {
                         marginBottom: isVisible ? 50 : 0
                     }
                 ]}>
+                    <ChanelMembersView
+                        userAvatars={[
+                            AppImages.userAvatar,
+                            AppImages.userAvatar,
+                            AppImages.userAvatar,
+                            AppImages.userAvatar,
+                        ]} isGroup={true}
+                    />
                     <View
                         style={styles.chatList}
                     >
-                        <ScrollView>
+                        <ScrollView
+                            style={styles.scrollView}
+                        >
                             {
                                 messages.map((msg, idx) => {
                                     return (
@@ -117,8 +128,8 @@ const styles = StyleSheet.create({
         // backgroundColor: 'red'
     },
     inner: {
-        padding: 24,
         flex: 1,
+        paddingHorizontal: 24,
         justifyContent: 'space-around',
     },
     header: {
@@ -136,8 +147,12 @@ const styles = StyleSheet.create({
         marginTop: 12,
     },
     chatList: {
+        height: windowHeight - (StatusBar.currentHeight || 0) - 80,
+        paddingTop: 20,
+        paddingBottom: 12,
+    },
+    scrollView: {
         flexDirection: 'column',
-        gap: 16,
-        marginBottom: 40
+        gap: 12,
     }
 });

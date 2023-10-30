@@ -50,6 +50,7 @@ export default MessageView
 const styles = StyleSheet.create({
     container: {
         position: 'relative',
+        marginTop: 12
     },
     subContainer: {
         position: 'relative',
