@@ -17,7 +17,7 @@ export default function RegisterScreen() {
   }
 
   const handleOnPressRegister = () => {
-    router.replace('/profile')
+    router.replace('/home')
   }
 
   return (

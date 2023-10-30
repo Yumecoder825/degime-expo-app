@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { TouchableOpacity, StyleSheet, useColorScheme } from 'react-native'
-import { AntDesign, FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { Feather, FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { getDimention } from '../../utils/dimentions';
 import { Text, View } from '../Themed'
 import Colors from '../../constants/Colors';
@@ -80,7 +80,7 @@ function TabSidebar({ onChangeTab }: TTabSidebarProps) {
                 renderChildren={(active) => {
                     return (
                         <>
-                            <MaterialCommunityIcons name="bookmark-multiple-outline" style={{ marginBottom: -3 }} size={32} color={active ? 'white' : tabIconColor} />
+                            <MaterialIcons name="perm-contact-calendar" style={{ marginBottom: -3 }} size={32} color={active ? 'white' : tabIconColor} />
                             {
                                 active && (
                                     <Text style={styles.tabText}>
@@ -104,7 +104,7 @@ function TabSidebar({ onChangeTab }: TTabSidebarProps) {
                 renderChildren={(active) => {
                     return (
                         <>
-                            <MaterialIcons name="perm-contact-calendar" style={{ marginBottom: -3 }} size={32} color={active ? 'white' : tabIconColor} />
+                            <FontAwesome name="line-chart" style={{ marginBottom: -3 }} size={32} color={active ? 'white' : tabIconColor} />
                             {
                                 active && (
                                     <Text style={styles.tabText}>
@@ -128,31 +128,7 @@ function TabSidebar({ onChangeTab }: TTabSidebarProps) {
                 renderChildren={(active) => {
                     return (
                         <>
-                            <AntDesign name="user" style={{ marginBottom: -3 }} size={32} color={active ? 'white' : tabIconColor} />
-                            {
-                                active && (
-                                    <Text style={styles.tabText}>
-                                        チャット
-                                    </Text>
-                                )
-                            }
-                        </>
-                    )
-                }}
-            />
-            <TabItem
-                actived={tab === 4}
-                onPress={() => handleOnPressTab(4)}
-                style={[
-                    tab === 4 && {
-                        backgroundColor: Colors[colorScheme].secondary
-                    },
-                    styles.tab
-                ]}
-                renderChildren={(active) => {
-                    return (
-                        <>
-                            <FontAwesome name="line-chart" style={{ marginBottom: -3 }} size={32} color={active ? 'white' : tabIconColor} />
+                            <Feather name="settings" style={{ marginBottom: -3 }} size={32} color={active ? 'white' : tabIconColor} />
                             {
                                 active && (
                                     <Text style={styles.tabText}>

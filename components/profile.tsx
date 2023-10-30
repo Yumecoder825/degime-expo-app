@@ -1,8 +1,8 @@
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, Href } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, SafeAreaView, StyleSheet, useColorScheme, TouchableOpacity } from 'react-native';
+import { SafeAreaView, StyleSheet, useColorScheme, TouchableOpacity } from 'react-native';
 import { AppModal } from './Modal';
 import { SearchInput } from './SearchInput';
 
@@ -13,9 +13,106 @@ import { getDimention } from '../utils/dimentions';
 
 const { windowWidth, windowHeight } = getDimention()
 
+type ListItem = {
+  name: string;
+  href: Href<'pathname'>;
+}
+
+const list: ListItem[] = [{
+  name: 'オンライン名刺作成',
+  href: '/home',
+}, {
+  name: 'SNSリンクツリー向け作成',
+  href: '/home',
+}, {
+  name: 'チャット',
+  href: '/home',
+}, {
+  name: 'Degimeカード購入',
+  href: '/home',
+}, {
+  name: '設定',
+  href: '/home',
+}, {
+  name: 'データ管理',
+  href: '/home',
+}, {
+  name: '非通知一覧 (元に戻す」機能を実装する)',
+  href: '/home',
+}, {
+  name: 'ブロック一覧',
+  href: '/home',
+}, {
+  name: '削除一覧',
+  href: '/home',
+}]
+
+type TMenuListProps = {
+  show: boolean;
+}
+function MenuList({ show }: TMenuListProps) {
+  const colorScheme = useColorScheme() || 'light';
+
+  const handleOnPressItem = (href: Href<'pathname'>) => {
+    router.replace(href)
+  }
+
+  return (
+    <View
+      style={[
+        !show && { display: 'none' },
+        menuListStyles.container, {
+          borderColor: Colors[colorScheme].primary
+        }
+      ]}
+    >
+      {
+        list.map((item, idx) => (
+          <>
+            <TouchableOpacity
+              key={idx}
+              style={menuListStyles.item}
+              onPress={() => handleOnPressItem(item.href)}
+            >
+              <Text>{item.name}</Text>
+            </TouchableOpacity>
+            {
+              idx < (list.length - 1) && (
+                <View
+                  style={menuListStyles.border}
+                ></View>
+              )
+            }
+          </>
+        ))
+      }
+    </View>
+  )
+}
+
+const menuListStyles = StyleSheet.create({
+  container: {
+    borderRadius: 4,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginRight: 28,
+    width: 300,
+  },
+  item: {
+    paddingVertical: 4,
+    paddingHorizontal: 4,
+  },
+  border: {
+    backgroundColor: '#0008',
+    height: 1
+  }
+})
+
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const [warningModalVisible, setWarningModalVisible] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [searchString, setSearchString] = useState('');
 
   const handleOnPressOnlineBusinessCard = () => {
@@ -37,11 +134,15 @@ export default function ProfileScreen() {
   const handleOnPressSnsProfile = () => {
     router.replace('/profileeditor')
   }
-  const handleOnPressLandingPage = () => {
-    router.replace('/savedprofiles')
-  }
+  // const handleOnPressLandingPage = () => {
+  //   router.replace('/savedprofiles')
+  // }
   const handleOnPressLogo = () => {
     router.replace('/home')
+  }
+
+  const handleOnPressMenu = () => {
+    setShowMenu(p => !p)
   }
 
   return (
@@ -61,9 +162,20 @@ export default function ProfileScreen() {
             <Text style={{ fontWeight: 'bold' }}>https://myprofile.co</Text>
           </View>
           <View style={styles.menuContainer}>
-            <Pressable>
+            <TouchableOpacity
+              onPress={handleOnPressMenu}
+            >
               <Feather name="menu" size={24} color="black" />
-            </Pressable>
+            </TouchableOpacity>
+            <View
+              style={styles.menuList}
+            >
+              <View
+                style={styles.menuListView}
+              >
+                <MenuList show={showMenu} />
+              </View>
+            </View>
           </View>
         </View>
         <View style={styles.subContainer}>
@@ -85,12 +197,12 @@ export default function ProfileScreen() {
               <Text style={styles.buttonText}>SNS向けリンクツリー</Text>
               <Ionicons style={styles.buttonIcon} name="add-circle" size={26} color="black" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}
+            {/* <TouchableOpacity style={styles.button}
               onPress={handleOnPressLandingPage}
             >
               <Text style={styles.buttonText}>ランディングページ</Text>
               <Ionicons style={styles.buttonIcon} name="add-circle" size={26} color="black" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
 
           <View style={styles.smallButtonsContainer}>
@@ -182,7 +294,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     position: 'absolute',
     right: 8,
-    top: 8
+    top: 8,
+    // backgroundColor: 'red',
+  },
+  menuList: {
+    position: 'relative',
+  },
+  menuListView: {
+    position: 'absolute',
+    right: 0,
   },
   subContainer: {
     marginTop: 20,

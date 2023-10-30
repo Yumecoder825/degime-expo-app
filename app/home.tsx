@@ -3,6 +3,7 @@ import { StyleSheet, StatusBar, SafeAreaView, ScrollView } from 'react-native'
 
 import TabSidebar from '../components/Tab/TabSidebar'
 import ProfileSection from '../components/profile'
+import ChatSection from '../components/chat'
 import { View } from '../components/Themed'
 import { getDimention } from '../utils/dimentions'
 import { TabHeight } from '../components/Tab/Constant'
@@ -18,7 +19,7 @@ function home() {
 
     const component = useMemo(() => {
         if (tab === 0) {
-            return <ProfileSection />
+            return <ChatSection />
         } else if (tab === 3) {
             return <ProfileSection />
         }
@@ -31,9 +32,7 @@ function home() {
             <View
                 style={styles.body}
             >
-                <ScrollView>
-                    {component}
-                </ScrollView>
+                {component}
             </View>
             <View
                 style={styles.tabSection}
@@ -56,7 +55,7 @@ const styles = StyleSheet.create({
     },
     body: {
         // backgroundColor: 'red',
-        height: windowHeight - TabHeight// - (StatusBar.currentHeight || 0)
+        height: windowHeight - TabHeight,// - (StatusBar.currentHeight || 0)
     },
     tabSection: {
         position: 'absolute',

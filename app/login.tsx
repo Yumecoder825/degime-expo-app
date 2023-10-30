@@ -17,7 +17,7 @@ export default function LoginScreen() {
     setIsShowPasswordPreview(p => !p)
   }
   const handleOnPressLogin = () => {
-    router.replace('/profile')
+    router.replace('/home')
   }
 
   return (
