@@ -45,7 +45,7 @@ function SavedProfilesScreen() {
     const colorTheme = useColorScheme()
 
     const handleOnPressBack = () => {
-        router.replace('/profile')
+        router.replace('/home')
     }
 
     const handleOnClickTab = (_tab: Tab) => {
