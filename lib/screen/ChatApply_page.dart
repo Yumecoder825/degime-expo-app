@@ -1,33 +1,29 @@
 import 'package:degime_131/screen/Chat_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:nb_utils/nb_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:degime_131/screen/Landing_page.dart';
-// import 'package:degime_131/screen/Menu_page2.dart';
-// import 'package:degime_131/screen/Menu_page3.dart';
+import 'package:degime_131/utils/Global_variable.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 class MyChatButton extends StatefulWidget {
-  const MyChatButton({super.key});
+  String? path = 'assets/images/chatapplication.svg';
+  final Function()? changePath;
+  MyChatButton({super.key, this.path, this.changePath});
   @override
   State<MyChatButton> createState() => _MyChatButtonState();
 }
 
 class _MyChatButtonState extends State<MyChatButton> {
-  String path = 'assets/images/chatapplication.svg';
-  void changePath() {
-    setState(() {
-      path = "assets/images/waitresponse.svg";
-      Navigator.pop(context);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return IconButton(
-        icon: SvgPicture.asset(path),
+        icon: SvgPicture.asset(widget.path!),
         onPressed: () {
           Widget okButton = Container(
             padding: const EdgeInsets.all(0),
@@ -35,7 +31,7 @@ class _MyChatButtonState extends State<MyChatButton> {
             width: 140,
             height: 35,
             child: OutlinedButton(
-                onPressed: changePath,
+                onPressed: widget.changePath,
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.all(0),
                   backgroundColor: Colors.white,
@@ -192,15 +188,19 @@ class MyReturnButton extends StatelessWidget {
 class MyListTile extends StatelessWidget {
   final String imagePath;
   final double svgRight;
+  String title;
+  String subtitle;
   final MyChatButton? myChatButton;
   final MyReturnButton? myReturnButton;
   final Function()? onTap;
   final bool isFirstPage;
 
-  const MyListTile({
+  MyListTile({
     Key? key,
     this.myReturnButton,
     required this.imagePath,
+    required this.title,
+    required this.subtitle,
     required this.svgRight,
     this.myChatButton,
     required this.isFirstPage,
@@ -220,18 +220,23 @@ class MyListTile extends StatelessWidget {
             alignment: Alignment.center,
             child: Stack(
               children: [
-                Image.asset(
-                  imagePath,
-                  width: 40,
-                ),
+                imagePath.contains('assets')
+                    ? Image.asset(
+                        imagePath,
+                        width: 50,
+                      )
+                    : Image.network(
+                        imagePath,
+                        width: 50,
+                      ),
               ],
             ),
           ),
-          title: const Text(
-            'Jane Cooper',
+          title: Text(
+            title,
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
-          subtitle: const Text('(270)555-0117, 2019/11/20',
+          subtitle: Text(subtitle,
               style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -242,7 +247,13 @@ class MyListTile extends StatelessWidget {
               child: isFirstPage ? myChatButton : myReturnButton),
           onTap: () {
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => ChatPage(index: 0,folderName: '',addFolder: [],)));
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ChatPage(
+                          index: 0,
+                          folderName: '',
+                          addFolder: [],
+                        )));
           },
         ));
   }
@@ -257,30 +268,40 @@ class ChatApply extends StatefulWidget {
 
 class _ChatApply extends State<ChatApply> {
   TextEditingController _controller = TextEditingController();
-  late List<MyListTile> listtiles = const [
-    MyListTile(
-      imagePath: 'assets/images/avatar1.png',
-      svgRight: 100,
-      isFirstPage: true,
-      myChatButton: MyChatButton(),
-    ),
-    MyListTile(
-      imagePath: 'assets/images/avatar2.png',
-      svgRight: 0,
-      isFirstPage: true,
-      myChatButton: MyChatButton(),
-    ),
-    MyListTile(
-      imagePath: 'assets/images/avatar3.png',
-      svgRight: 100,
-      isFirstPage: true,
-      myChatButton: MyChatButton(),
-    ),
-  ];
+
+  Future<void> changeSetting(String member, String settingname) async {
+    var url = Uri.parse(
+        'http://194.87.199.12:5000/social/private/contactdata?is_pending=${settingname}');
+    var data = {"member": member};
+
+    final requestbody = jsonEncode(data);
+    var response = await http.put(url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'token ${GlobalVariables.token}'
+        },
+        body: requestbody);
+    await GlobalVariables.getMember();
+    Navigator.of(context).pop();
+    Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) => ChatApply()));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    GlobalVariables.getMember();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    GlobalVariables.getMember();
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 0,
@@ -388,13 +409,48 @@ class _ChatApply extends State<ChatApply> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       ListView.builder(
-                        itemCount: listtiles.length,
+                        itemCount: GlobalVariables.memberlist.length,
                         padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
-                          return listtiles[index];
+                          return (GlobalVariables.memberlist[index]
+                                          ["is_pending"] ==
+                                      "addChat" ||
+                                  GlobalVariables.memberlist[index]
+                                          ["is_pending"] ==
+                                      "True") && GlobalVariables.memberlist[index]
+                                          ["is_chat_available"] ==
+                                      "False"
+                              ? MyListTile(
+                                  imagePath: GlobalVariables.memberlist[index]
+                                              ["member_avatar"] !=
+                                          null
+                                      ? GlobalVariables.memberlist[index]
+                                          ["member_avatar"]
+                                      : 'assets/images/defaultavatar.png',
+                                  title: GlobalVariables.memberlist[index]
+                                      ["member"],
+                                  subtitle: GlobalVariables.memberlist[index]
+                                      ["member_email"],
+                                  svgRight: 0,
+                                  isFirstPage: true,
+                                  myChatButton: MyChatButton(
+                                    changePath: () {
+                                      changeSetting(
+                                          GlobalVariables.memberlist[index]
+                                              ["member"],
+                                          "True");
+                                    },
+                                    path: GlobalVariables.memberlist[index]
+                                                ["is_pending"] ==
+                                            "True"
+                                        ? "assets/images/waitresponse.svg"
+                                        : 'assets/images/chatapplication.svg',
+                                  ),
+                                )
+                              : 0.height;
                         },
                       )
                     ]),

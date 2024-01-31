@@ -642,6 +642,135 @@ class _FirstScreen extends State<FirstScreen> {
         },
       ),
     ),
+        MyListTile(
+      imagePath: 'assets/images/avatar1.png',
+      svgRight: 100,
+      isFirstPage: true,
+      myPopupMenuButton: MyPopupMenuButton(
+        svgPath: 'assets/images/setting.svg',
+        onDelete: () {
+          setState(() {
+            listtiles.removeAt(0);
+          });
+          Navigator.pop(context);
+        },
+      ),
+    ),
+    MyListTile(
+      imagePath: 'assets/images/avatar2.png',
+      svgRight: 0,
+      isFirstPage: true,
+      myPopupMenuButton: MyPopupMenuButton(
+        svgPath: 'assets/images/setting.svg',
+        onDelete: () {
+          setState(() {
+            listtiles.removeAt(1);
+          });
+          Navigator.pop(context);
+        },
+      ),
+    ),
+    MyListTile(
+      imagePath: 'assets/images/avatar3.png',
+      svgRight: 100,
+      isFirstPage: true,
+      myPopupMenuButton: MyPopupMenuButton(
+        svgPath: 'assets/images/setting.svg',
+        onDelete: () {
+          setState(() {
+            listtiles.removeAt(2);
+            //listtiles.add(listtiles[0]);
+          });
+          Navigator.pop(context);
+        },
+      ),
+    ),
+        MyListTile(
+      imagePath: 'assets/images/avatar1.png',
+      svgRight: 100,
+      isFirstPage: true,
+      myPopupMenuButton: MyPopupMenuButton(
+        svgPath: 'assets/images/setting.svg',
+        onDelete: () {
+          setState(() {
+            listtiles.removeAt(0);
+          });
+          Navigator.pop(context);
+        },
+      ),
+    ),
+    MyListTile(
+      imagePath: 'assets/images/avatar2.png',
+      svgRight: 0,
+      isFirstPage: true,
+      myPopupMenuButton: MyPopupMenuButton(
+        svgPath: 'assets/images/setting.svg',
+        onDelete: () {
+          setState(() {
+            listtiles.removeAt(1);
+          });
+          Navigator.pop(context);
+        },
+      ),
+    ),
+    MyListTile(
+      imagePath: 'assets/images/avatar3.png',
+      svgRight: 100,
+      isFirstPage: true,
+      myPopupMenuButton: MyPopupMenuButton(
+        svgPath: 'assets/images/setting.svg',
+        onDelete: () {
+          setState(() {
+            listtiles.removeAt(2);
+            //listtiles.add(listtiles[0]);
+          });
+          Navigator.pop(context);
+        },
+      ),
+    ),
+        MyListTile(
+      imagePath: 'assets/images/avatar1.png',
+      svgRight: 100,
+      isFirstPage: true,
+      myPopupMenuButton: MyPopupMenuButton(
+        svgPath: 'assets/images/setting.svg',
+        onDelete: () {
+          setState(() {
+            listtiles.removeAt(0);
+          });
+          Navigator.pop(context);
+        },
+      ),
+    ),
+    MyListTile(
+      imagePath: 'assets/images/avatar2.png',
+      svgRight: 0,
+      isFirstPage: true,
+      myPopupMenuButton: MyPopupMenuButton(
+        svgPath: 'assets/images/setting.svg',
+        onDelete: () {
+          setState(() {
+            listtiles.removeAt(1);
+          });
+          Navigator.pop(context);
+        },
+      ),
+    ),
+    MyListTile(
+      imagePath: 'assets/images/avatar3.png',
+      svgRight: 100,
+      isFirstPage: true,
+      myPopupMenuButton: MyPopupMenuButton(
+        svgPath: 'assets/images/setting.svg',
+        onDelete: () {
+          setState(() {
+            listtiles.removeAt(2);
+            //listtiles.add(listtiles[0]);
+          });
+          Navigator.pop(context);
+        },
+      ),
+    ),
   ];
 
   @override

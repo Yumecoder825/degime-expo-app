@@ -1,17 +1,18 @@
 import 'package:degime_131/screen/Chat_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:nb_utils/nb_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:degime_131/screen/Landing_page.dart';
-// import 'package:degime_131/screen/Menu_page2.dart';
-// import 'package:degime_131/screen/Menu_page3.dart';
+import 'package:degime_131/utils/Global_variable.dart';
 
 class CreateFolder extends StatefulWidget {
   String folderName;
-  CreateFolder({super.key,required this.folderName});
+  CreateFolder({super.key, required this.folderName});
   static String tag = "/CreateFolder";
   @override
   State<CreateFolder> createState() => _CreateFolder();
@@ -20,10 +21,10 @@ class CreateFolder extends StatefulWidget {
 class Item {
   final String path;
   final String title;
-  final String subtitle;
+  final String member;
   bool isSelected;
 
-  Item(this.path, this.title, this.subtitle, {this.isSelected = false});
+  Item(this.path, this.title, this.member, {this.isSelected = false});
 }
 
 class _CreateFolder extends State<CreateFolder> {
@@ -144,7 +145,7 @@ class _CreateFolder extends State<CreateFolder> {
 
 class SecondScreen extends StatefulWidget {
   String folderName;
-  SecondScreen({super.key,required this.folderName});
+  SecondScreen({super.key, required this.folderName});
   @override
   State<SecondScreen> createState() => _SecondScreen();
 }
@@ -152,48 +153,62 @@ class SecondScreen extends StatefulWidget {
 class _SecondScreen extends State<SecondScreen> {
   List<Widget> _appBarImage = [];
   List<Widget> _appBar = [];
+  List<String> _primarynewroom = [];
+  List<String> _newroom = [];
   List<Item> items = [];
   Set<int> selectedIndexes = {};
   Map<int, int> selectedItems = {};
   bool isSelectionMode = false;
   int leng = 0;
 
+  Future<void> createGroup(List<String> member) async {
+    var url = Uri.parse(
+        'http://194.87.199.12:5000/social/private/chatroom?new_room=True');
+    var data = {"member": member, "chat_group" : widget.folderName};
+    final requestbody = jsonEncode(data);
+    var response = await http.put(url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'token ${GlobalVariables.token}'
+        },
+        body: requestbody);
+    await GlobalVariables.getRoom();
+  }
+
   @override
   void initState() {
     super.initState();
-    items = [
-      Item('assets/images/avatar1.png', 'Jane Cooper',
-          '(270)555-0117, 2019/11/20'),
-      Item('assets/images/avatar2.png', 'Jane Cooper',
-          '(270)555-0117, 2019/11/20'),
-      Item('assets/images/avatar3.png', 'Jane Cooper',
-          '(270)555-0117, 2019/1/20'),
-      Item('assets/images/avatar2.png', 'Jane Cooper',
-          '(270)555-0117, 2019/11/20'),
-      Item('assets/images/avatar1.png', 'Jane Cooper',
-          '(270)555-0117, 2019/11/20'),
-      Item('assets/images/avatar2.png', 'Jane Cooper',
-          '(270)555-0117, 2019/11/20'),
-      Item('assets/images/avatar3.png', 'Jane Cooper',
-          '(270)555-0117, 2019/1/20'),
-      Item('assets/images/avatar2.png', 'Jane Cooper',
-          '(270)555-0117, 2019/11/20'),
-      Item('assets/images/avatar1.png', 'Jane Cooper',
-          '(270)555-0117, 2019/11/20'),
-      Item('assets/images/avatar2.png', 'Jane Cooper',
-          '(270)555-0117, 2019/11/20'),
-      Item('assets/images/avatar3.png', 'Jane Cooper',
-          '(270)555-0117, 2019/1/20'),
-      Item('assets/images/avatar2.png', 'Jane Cooper',
-          '(270)555-0117, 2019/11/20'),
-    ];
+    GlobalVariables.getRoom();
+    items = [];
+    for (int i = 0; i < GlobalVariables.chatroom.length; i++) {
+      if (GlobalVariables.chatroom[i]["member"].length == 2) {
+        items.add(Item(
+          GlobalVariables.chatroom[i]["member"][0]['username'] ==
+                  GlobalVariables.username
+              ? GlobalVariables.chatroom[i]["member"][1]['avatar'].toString()
+              : GlobalVariables.chatroom[i]["member"][0]['avatar'].toString(),
+          GlobalVariables.chatroom[i]["chat_group"],
+          GlobalVariables.chatroom[i]["member"][0]['username'] ==
+                  GlobalVariables.username
+              ? GlobalVariables.chatroom[i]["member"][1]['username']
+              : GlobalVariables.chatroom[i]["member"][0]['username'],
+        ));
+      }
+    }
     selectedIndexes = {};
     for (int i = 0; i < items.length; i++) {
-      _appBarImage.add((Image.asset(
-        items[i].path,
-        width: 50,
-        height: 50,
-      )));
+      _primarynewroom.add(items[i].member);
+      _appBarImage.add((items[i].path.contains("http")
+          ? Image.network(
+              items[i].path,
+              width: 50,
+              height: 50,
+            )
+          : Image.asset(
+              "assets/images/defaultavatar.png",
+              width: 50,
+              height: 50,
+            )));
     }
   }
 
@@ -201,24 +216,13 @@ class _SecondScreen extends State<SecondScreen> {
     setState(() {
       if (selectedIndexes.contains(index)) {
         selectedIndexes.remove(index);
+        _newroom.remove(_primarynewroom[index]);
         _appBar.remove(_appBarImage[index]);
       } else {
         selectedIndexes.add(index);
+        _newroom.add(_primarynewroom[index]);
         _appBar.add(_appBarImage[index]);
       }
-    });
-  }
-
-  void deleteSelectedItems() {
-    setState(() {
-      final List<int> indexesToRemove = selectedIndexes.toList();
-      indexesToRemove
-          .sort((a, b) => b.compareTo(a)); // Sort in descending order
-      for (final index in indexesToRemove) {
-        items.removeAt(index);
-      }
-      selectedIndexes.clear();
-      isSelectionMode = false;
     });
   }
 
@@ -257,18 +261,23 @@ class _SecondScreen extends State<SecondScreen> {
                   leading: ClipRRect(
                       borderRadius: BorderRadius.circular(70),
                       child: Container(
-                        decoration: BoxDecoration(boxShadow: [
-                          BoxShadow(
-                              color: Colors.grey.shade500,
-                              offset: const Offset(0, 2),
-                              blurRadius: 3)
-                        ]),
-                        child: Image.asset(
-                          item.path,
-                          width: 50,
-                          height: 50,
-                        ),
-                      )),
+                          decoration: BoxDecoration(boxShadow: [
+                            BoxShadow(
+                                color: Colors.grey.shade500,
+                                offset: const Offset(0, 2),
+                                blurRadius: 3)
+                          ]),
+                          child: item.path.contains("http")
+                              ? Image.network(
+                                  item.path,
+                                  width: 50,
+                                  height: 50,
+                                )
+                              : Image.asset(
+                                  "assets/images/defaultavatar.png",
+                                  width: 50,
+                                  height: 50,
+                                ))),
                   trailing: isSelectionMode
                       ? Checkbox(
                           value: selectedIndexes.contains(index),
@@ -281,7 +290,6 @@ class _SecondScreen extends State<SecondScreen> {
                         )
                       : null,
                   title: Text(item.title),
-                  subtitle: Text(item.subtitle),
                   onTap: () {
                     if (isSelectionMode) {
                       setState(() {
@@ -322,15 +330,23 @@ class _SecondScreen extends State<SecondScreen> {
                         borderRadius: BorderRadius.circular(15)),
                   ),
                   onPressed: () {
-                    print(_appBar);
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) => ChatPage(
-                                  addFolder: _appBar,
-                                  index: 1,
-                                  folderName: widget.folderName,
-                                )));
+                    print(_newroom);
+                    if (selectedIndexes.length >= 2) {
+                      createGroup(_newroom);
+                      Navigator.of(context).pop();
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => ChatPage(
+                                    addFolder: _appBar,
+                                    index: 0,
+                                    folderName: widget.folderName,
+                                  )));
+                    } else {
+                      Navigator.of(context).pop();
+                      Fluttertoast.showToast(
+                          msg: 'Please select more than 2 items');
+                    }
                   },
                   child: const Text(
                     "完成",

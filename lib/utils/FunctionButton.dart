@@ -42,7 +42,7 @@ class FunctionButton extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10)),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     title,

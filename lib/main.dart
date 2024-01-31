@@ -21,8 +21,14 @@ import 'package:degime_131/screen/Menu_page.dart';
 import 'package:degime_131/screen/Landing_page.dart';
 import 'package:degime_131/screen/BCardManage_page1.dart';
 import 'package:degime_131/screen/BCardManage_page2.dart';
+import 'package:camera/camera.dart';
+import 'dart:io';
 
-void main() {
+List<CameraDescription> cameras = [];
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  cameras = await availableCameras();
   runApp(const MyApp());
 }
 
@@ -31,6 +37,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Degime', home: SNSCard());
+    return MaterialApp(title: 'Degime', home: LandingPage());
   }
 }

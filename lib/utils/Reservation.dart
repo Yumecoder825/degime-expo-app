@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:intl/intl.dart';
+import 'package:degime_131/utils/Global_variable.dart';
 
 class Reservation extends StatefulWidget {
   @override
@@ -59,6 +60,7 @@ class _ReservationState extends State<Reservation> {
         selectedTime = pickedTime;
         _controller1.text =
             _controller1.text + " " + selectedTime.toString().substring(10, 15);
+        GlobalVariables.reservationStart = _controller1.text;
       });
     }
   }
@@ -74,6 +76,7 @@ class _ReservationState extends State<Reservation> {
         selectedTime = pickedTime;
         _controller2.text =
             _controller2.text + " " + selectedTime.toString().substring(10, 15);
+        GlobalVariables.reservationEnd = _controller2.text;
       });
     }
   }
@@ -137,7 +140,13 @@ class _ReservationState extends State<Reservation> {
           width: 120,
           height: 30,
           child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  Navigator.of(context).pop();
+                  _controller1.clear();
+                  _controller2.clear();
+                });
+              },
               style: OutlinedButton.styleFrom(
                 backgroundColor: Colors.green,
                 side: BorderSide.none,
@@ -154,7 +163,11 @@ class _ReservationState extends State<Reservation> {
           width: 120,
           height: 30,
           child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).pop();
+                _controller1.clear();
+                _controller2.clear();
+              },
               style: OutlinedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 side: BorderSide.none,

@@ -1,3 +1,4 @@
+import 'package:degime_131/utils/Okbutton.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -6,10 +7,12 @@ import 'package:degime_131/screen/Register_page.dart';
 import 'package:degime_131/screen/Landing_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:degime_131/utils/Global_variable.dart';
+import 'package:degime_131/utils/FunctionButton.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  var token;
+  LoginPage({super.key, this.token});
   static String tag = "/LoginPage";
   @override
   State<LoginPage> createState() => _LoginPage();
@@ -19,13 +22,78 @@ class _LoginPage extends State<LoginPage> {
   bool _obscureText = true;
   String _inputText1 = '';
   String _inputText2 = '';
+  String _inputText3 = '';
+  String _inputText4 = '';
+  List<TextEditingController> _controllers =
+      List.generate(6, (index) => TextEditingController());
+  final List<FocusNode> _focusNodes = List.generate(7, (index) => FocusNode());
   Icon eye2 = const Icon(Icons.visibility_off);
   Icon eye1 = const Icon(Icons.visibility_outlined);
   Icon eye = const Icon(Icons.visibility_off);
   String token = '';
+  String forgotToken = '';
+
+  Widget digit(
+      BuildContext context, TextEditingController _controller, int index) {
+    return Container(
+        padding: EdgeInsets.all(0),
+        width: 30,
+        height: 40,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            border: Border.all(width: 1.0)),
+        child: TextField(
+            controller: _controller,
+            focusNode: _focusNodes[index - 1],
+            style: TextStyle(
+              fontSize: 28,
+            ),
+            textAlign: TextAlign.center,
+            onChanged: (text) {
+              List<String> words = text.split('');
+              if (words.length == 1) {
+                if (index == 6) {
+                  FocusScope.of(context).unfocus();
+                  String finaldigit = _controllers[0].text +
+                      _controllers[1].text +
+                      _controllers[2].text +
+                      _controllers[3].text +
+                      _controllers[4].text +
+                      _controllers[5].text;
+                  forgotValidate(_inputText1, finaldigit);
+                } else {
+                  FocusScope.of(context).requestFocus(_focusNodes[index]);
+                }
+              }
+              if (text == '') {
+                if (index == 1) {
+                  FocusScope.of(context).requestFocus(_focusNodes[0]);
+                } else
+                  FocusScope.of(context).requestFocus(_focusNodes[index - 2]);
+              }
+              if (words.length == 6) {
+                _controllers[0].text = words[0];
+                _controllers[1].text = words[1];
+                _controllers[2].text = words[2];
+                _controllers[3].text = words[3];
+                _controllers[4].text = words[4];
+                _controllers[5].text = words[5];
+                FocusScope.of(context).unfocus();
+                forgotValidate(
+                    _inputText1,
+                    _controllers[0].text +
+                        _controllers[1].text +
+                        _controllers[2].text +
+                        _controllers[3].text +
+                        _controllers[4].text +
+                        _controllers[5].text);
+              }
+            }));
+  }
 
   Future<void> logout() async {
-    var url = Uri.parse('http://194.87.199.12:8000/account/logout/');
+    var url = Uri.parse('http://194.87.199.12:5000/account/logout');
     var object = {'Authorization': 'token $token'};
     final response = await http.get(url, headers: object);
     if (response.statusCode == 200) {
@@ -37,7 +105,13 @@ class _LoginPage extends State<LoginPage> {
   }
 
   Future<void> login(String username, String password) async {
-    var url = Uri.parse('http://194.87.199.12:8000/account/login/');
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Center(child: CircularProgressIndicator());
+      },
+    );
+    var url = Uri.parse('http://194.87.199.12:5000/account/login');
     var data = {
       "username": username,
       "password": password,
@@ -50,11 +124,253 @@ class _LoginPage extends State<LoginPage> {
         },
         body: requestBody);
     print(json.decode(response.body));
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       // Authentication successful, store the token
       // Store the token locally on the device
       // Example: SharedPreferences.getInstance().then((prefs) => prefs.setString('token', token));
       token = json.decode(response.body)['token'];
+      GlobalVariables.token = token;
+      GlobalVariables.username = json.decode(response.body)['username'];
+    } else {
+      // Authentication failed
+      throw Exception('Failed to login');
+    }
+  }
+
+  Future<void> forgotPassword(String email) async {
+    var url = Uri.parse('http://194.87.199.12:5000/account/forgot_password');
+    var data = {"email": email};
+
+    final requestBody = jsonEncode(data);
+    final response = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: requestBody);
+    print(json.decode(response.body));
+    if (_inputText1 != '') {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: Container(
+                padding: EdgeInsets.all(0),
+                height: 150,
+                alignment: Alignment.center,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'メールに送られたコードを\n入力してください',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 220,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Visibility(
+                                visible: true,
+                                child: digit(context, _controllers[0], 1),
+                              ),
+                              digit(context, _controllers[1], 2),
+                              digit(context, _controllers[2], 3),
+                              digit(context, _controllers[3], 4),
+                              digit(context, _controllers[4], 5),
+                              digit(context, _controllers[5], 6),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        FunctionButton(
+                            title: '再送する',
+                            wordcolor: Colors.white,
+                            width: 96,
+                            height: 30,
+                            bordercolor: Colors.transparent,
+                            fillcolor: Color(0xFFFF8F61),
+                            onPressed: () {
+                              _controllers
+                                  .forEach((controller) => controller.clear());
+                            })
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              actionsPadding: EdgeInsets.all(0),
+              actions: [],
+            );
+          });
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Authentication successful, store the token
+        // Store the token locally on the device
+        // Example: SharedPreferences.getInstance().then((prefs) => prefs.setString('token', token));
+        //forgotToken = json.decode(response.body)["token"];
+      } else {
+        // Authentication failed
+        throw Exception('Failed to Forgot Password');
+      }
+    }
+  }
+
+  Future<void> passwordReset(String password) async {
+    var url = Uri.parse('http://194.87.199.12:5000/account/password_reset');
+    var object = {
+      'Authorization': 'token $forgotToken',
+      'Content-Type': 'application/json'
+    };
+    var data = {
+      "new_password": password,
+    };
+
+    final requestBody = jsonEncode(data);
+    final response = await http.post(url, headers: object, body: requestBody);
+    print(json.decode(response.body));
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      // Authentication successful, store the token
+      // Store the token locally on the device
+      // Example: SharedPreferences.getInstance().then((prefs) => prefs.setString('token', token));
+      var message = json.decode(response.body);
+      Navigator.of(context).pop();
+    } else {
+      // Authentication failed
+      throw Exception('Failed to Reset');
+    }
+  }
+
+  Future<void> forgotValidate(String email, String vcode) async {
+    var url = Uri.parse('http://194.87.199.12:5000/account/validate_code');
+    var data = {
+      "email": email,
+      "vcode": vcode,
+    };
+
+    final requestBody = jsonEncode(data);
+    final response = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: requestBody);
+    print(json.decode(response.body));
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      // Authentication successful, store the token
+      // Store the token locally on the device
+      // Example: SharedPreferences.getInstance().then((prefs) => prefs.setString('token', token));
+      forgotToken = json.decode(response.body)['token'];
+      print(forgotToken);
+      Navigator.of(context).pop();
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: Container(
+                padding: EdgeInsets.all(0),
+                height: 140,
+                alignment: Alignment.center,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.6,
+                            child: TextField(
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                hintText: "半角英数字６文字以上",
+                                labelText: "パスワード",
+                                labelStyle: const TextStyle(
+                                    fontSize: 13, color: Color(0xFF999999)),
+                                hintStyle: const TextStyle(
+                                    fontSize: 12, color: Color(0xFF000842)),
+                                prefixIcon: const Icon(
+                                  Icons.lock_outline,
+                                  size: 20,
+                                ),
+                                prefixIconColor: const Color(0xFF000842),
+                              ),
+                              onChanged: (text) {
+                                setState(() {
+                                  _inputText3 = text;
+                                });
+                              },
+                            ))
+                      ],
+                    ),
+                    20.height,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.6,
+                            child: TextField(
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                hintText: "パスワード再入力",
+                                labelText: "パスワードを再入力してください",
+                                labelStyle: const TextStyle(
+                                    fontSize: 13, color: Color(0xFF999999)),
+                                hintStyle: const TextStyle(
+                                    fontSize: 12, color: Color(0xFF000842)),
+                                prefixIcon: const Icon(
+                                  Icons.lock_outline,
+                                  size: 20,
+                                ),
+                                prefixIconColor: const Color(0xFF000842),
+                              ),
+                              onChanged: (text) {
+                                setState(() {
+                                  _inputText4 = text;
+                                });
+                              },
+                            ))
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actionsPadding: EdgeInsets.all(5),
+              actions: [
+                Center(
+                  child: Okbutton(
+                    onPressed: () {
+                      if (_inputText3 == _inputText4) {
+                        passwordReset(_inputText3);
+                      } else {
+                        Fluttertoast.showToast(
+                            msg: 'Please type correct password',
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white);
+                      }
+                    },
+                  ),
+                )
+              ],
+            );
+          });
     } else {
       // Authentication failed
       throw Exception('Failed to login');
@@ -225,7 +541,8 @@ class _LoginPage extends State<LoginPage> {
                       alignment: Alignment.bottomRight,
                       child: TextButton(
                         onPressed: () {
-                          logout();
+                          //logout();
+                          forgotPassword(_inputText1);
                         },
                         child: const Text(
                           'パスワードを忘れた方',
@@ -246,13 +563,13 @@ class _LoginPage extends State<LoginPage> {
                       width: screenWidth * 0.9,
                       height: 50,
                       child: OutlinedButton(
-                          onPressed: () {
-                            login(_inputText1, _inputText2);
-                            // Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //         builder: (BuildContext context) =>
-                            //             LandingPage()));
+                          onPressed: () async {
+                            await login(_inputText1, _inputText2);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        LandingPage()));
                           },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.all(0),

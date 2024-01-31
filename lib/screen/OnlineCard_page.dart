@@ -1,5 +1,6 @@
 import 'dart:ui';
-
+import 'dart:convert';
+import 'package:video_player/video_player.dart';
 import 'package:degime_131/screen/Landing_page.dart';
 import 'package:degime_131/screen/ReleaseOnline_page.dart';
 import 'package:degime_131/screen/SNSCard_page.dart';
@@ -13,74 +14,28 @@ import 'package:nb_utils/nb_utils.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:camera/camera.dart';
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:degime_131/utils/Cancelbutton.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:http/http.dart' as http;
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:degime_131/main.dart';
+import 'package:degime_131/utils/Global_variable.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:nfc_manager/nfc_manager.dart';
 
-class OnlineCard extends StatefulWidget {
-  @override
-  State<OnlineCard> createState() => _OnlineCard();
-}
-
-class _OnlineCard extends State<OnlineCard> {
-  int space = 5;
-  bool checked = false;
-  PageController _pageController = PageController(initialPage: 0);
-  double currentIndexPage = 0;
-  final ImagePicker picker = ImagePicker();
-  bool cancelclick = false;
-  List<String> imageFiles = List.filled(19, "1");
-  List<TextEditingController> _controllers =
-      List.generate(54, (index) => TextEditingController()); //after 39
-  List<Widget> widgetList1 = [];
-  List<Map<String, Widget>> widgetList2 = [];
-  Color selectedColor = Colors.black;
-  Color cardcolor = Colors.white;
-  Color imagecolor = Colors.white;
-  List<String> _textValues = List<String>.filled(53, "");
-
-  Widget AddLink() {
-    return Container(
-        height: 80,
-        width: MediaQuery.of(context).size.width * 0.9,
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: Stack(children: [
-          Row(
-            children: [
-              Container(
-                width: 70,
-                height: 70,
-                child: imageFiles[2].contains('png')
-                    ? Image.asset(imageFiles[2])
-                    : Image.file(File(imageFiles[2])),
-              ),
-              Column(
-                children: [
-                  Text(
-                    _textValues[0],
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    _textValues[1],
-                    style: TextStyle(
-                      fontSize: 14,
-                    ),
-                  )
-                ],
-              )
-            ],
-          ),
-        ]));
-  }
-
-  Widget CardTextField(
-      String index, TextEditingController _controller, Color wordcolor) {
+class CardTextField extends StatelessWidget {
+  final String index;
+  final TextEditingController _controller;
+  final Color wordcolor;
+  CardTextField(this.index, this._controller, this.wordcolor);
+  Widget build(BuildContext context) {
     return Container(
         width: MediaQuery.of(context).size.width * 0.7,
         height: 50,
@@ -96,7 +51,7 @@ class _OnlineCard extends State<OnlineCard> {
               ),
               contentPadding: EdgeInsets.all(0),
               title: Container(
-                  width: MediaQuery.of(context).size.width * 0.7 - 1,
+                  width: MediaQuery.of(context).size.width * 0.7 - 1.0,
                   height: 50,
                   child: TextField(
                     controller: _controller,
@@ -115,46 +70,294 @@ class _OnlineCard extends State<OnlineCard> {
                           },
                         ),
                         contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0)),
-                    style: TextStyle(fontSize: 20, color: wordcolor),
+                    style: TextStyle(fontSize: 14, color: wordcolor),
                     textAlign: TextAlign.left,
                   )),
             )));
   }
+}
 
-  Widget AddOneScreen(
-      String imagefile, String text1, String text2, double index) {
+class OnlineCard extends StatefulWidget {
+  File? imagefile;
+  OnlineCard({super.key, this.imagefile});
+  @override
+  State<OnlineCard> createState() => _OnlineCard();
+}
+
+class _OnlineCard extends State<OnlineCard> {
+  bool _isNfcAvailable = false;
+  int currentpage = 0;
+  Color _color = Color(0xFF96DA45);
+  double _width = 140;
+  String recognizedText = '';
+  late String encoded = '';
+  late String video = '';
+  int space = 5;
+  int orderindex = -1;
+  bool checked = false;
+  PageController _pageController = PageController(initialPage: 0);
+  PageController _pageController1 =
+      PageController(initialPage: 0, viewportFraction: 0.9);
+  double currentIndexPage = 0;
+  final ImagePicker picker = ImagePicker();
+  bool cancelclick = false;
+  List<String> imageFiles = List.filled(21, "1");
+  // List<String> imageUrls = List.filled(21, "");
+  List<TextEditingController> _controllers =
+      List.generate(57, (index) => TextEditingController(text: "")); //after 39
+  TextEditingController degimecontroller =
+      TextEditingController(text: "https://degime.net/");
+  List<Widget> widgetList1 = [];
+  late Color selectedColor = Colors.black;
+  Color cardcolor = Colors.white;
+  Color imagecolor = Colors.white;
+  List<String> _textValues = List<String>.filled(57, "");
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
+  String mapurl = 'https://maps.google.com/maps?q=37.7749,-122.4194';
+  WebViewController _webcontroller = WebViewController()
+    ..setJavaScriptMode(JavaScriptMode.unrestricted)
+    ..setBackgroundColor(const Color(0x00000000))
+    ..loadRequest(
+        Uri.parse('https://maps.google.com/maps?q=37.7749,-122.4194'));
+
+  late WebViewController _webcontroller1 = WebViewController()
+    ..setJavaScriptMode(JavaScriptMode.unrestricted)
+    ..setBackgroundColor(const Color(0x00000000))
+    ..loadRequest(Uri.parse(mapurl));
+
+  double lines = 0;
+  QuillController _quillcontroller1 = QuillController.basic();
+  File? _pdfFile;
+  String videoUrl = '';
+  String pdfUrl = '';
+  var info = [];
+  var imageLink1 = [];
+  var imageLink2 = [];
+  var imageLink3 = [];
+  var imageLink4 = [];
+  var videoLink = [];
+  var textLink = [];
+  var mapLink = [];
+  var profileLink = [];
+  var pdfLink = [];
+  var spaceAdd = [];
+
+  Future<void> publicCard() async {
+    var uri = Uri.parse('http://194.87.199.12:5000/social/private/online');
+    var data = {
+      'bgColor': imagecolor.toString(),
+      'bgURL': GlobalVariables.imageUrls[17],
+      'cardColor': cardcolor.toString(),
+      'cardURL': GlobalVariables.imageUrls[18],
+      'wordColor': selectedColor.toString(),
+      'url_name': degimecontroller.text.splitAfter('net/'),
+      'faceImg': GlobalVariables.imageUrls[0],
+      'realName': _controllers[39].text,
+      'company_url': _controllers[53].text,
+      'companyName': _controllers[2].text,
+      'position': _controllers[40].text,
+      'phoneNumber': _controllers[41].text,
+      'mobilePhoneNumber': _controllers[42].text,
+      'mailAddress': _controllers[43].text,
+      'address': _controllers[44].text,
+      'idCard': {
+        'idCard': GlobalVariables.idCard,
+      },
+      'socialLink': {
+        'socialLink': [
+          {
+            'title': _controllers[45].text,
+            "icon_link": GlobalVariables.imageUrls[13] == ""
+                ? '/image/${_controllers[45].text.toLowerCase()}.png'
+                : GlobalVariables.imageUrls1[13],
+            "social_link": _controllers[49].text
+          },
+          {
+            'title': _controllers[46].text,
+            "icon_link": GlobalVariables.imageUrls[14] == ""
+                ? '/image/${_controllers[46].text.toLowerCase()}.png'
+                : GlobalVariables.imageUrls1[14],
+            "social_link": _controllers[50].text
+          },
+          {
+            'title': _controllers[47].text,
+            "icon_link": GlobalVariables.imageUrls[15] == ""
+                ? '/image/${_controllers[47].text.toLowerCase()}.png'
+                : GlobalVariables.imageUrls1[15],
+            "social_link": _controllers[51].text
+          },
+          {
+            'title': _controllers[48].text,
+            "icon_link": GlobalVariables.imageUrls[16] == ""
+                ? '/image/${_controllers[48].text.toLowerCase()}.png'
+                : GlobalVariables.imageUrls1[16],
+            "social_link": _controllers[52].text
+          },
+        ]
+      },
+      'onlineCard_Data': {
+        'imgLink1': imageLink1,
+        'imgLink2': imageLink2,
+        'imgLink3': imageLink3,
+        'imgLink4': imageLink4,
+        'videoLink': videoLink,
+        'textLink': textLink,
+        'mapLink': mapLink,
+        'selfProfile': profileLink,
+        'slideLink': pdfLink,
+        'spaceAdd': spaceAdd
+      }
+    };
+    final requestbody = jsonEncode(data);
+    var response = await http.put(uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'token ${GlobalVariables.token}'
+        },
+        body: requestbody);
+    //print(GlobalVariables.token);
+    print(json.decode(response.body));
+  }
+
+  Future<void> _recognizeText(File processedImage) async {
+    int index = 0;
+    final inputImage = InputImage.fromFile(processedImage);
+    final textRecognizer = GoogleMlKit.vision
+        .textRecognizer(script: TextRecognitionScript.japanese);
+    final recognisedText = await textRecognizer.processImage(inputImage);
+    String recognizedText = recognisedText.text;
+    setState(() {
+      for (TextBlock block in recognisedText.blocks) {
+        index++;
+        for (TextLine line in block.lines) {
+          if (line.text.length == 0)
+            break;
+          else {
+            if (line.text.contains("会社", 0) == true) {
+              _controllers[2].text = line.text;
+            }
+            if (line.text.contains("〒", 0) == true) {
+              _controllers[44].text = line.text.splitAfter(" ");
+            }
+            if (line.text.contains("http://", 0) == true) {
+              _controllers[53].text = line.text;
+            }
+            if (line.text.contains("E-mail:", 0) == true) {
+              _controllers[43].text = line.text.substring(7);
+            }
+            if (line.text.contains("TEL", 0) == true) {
+              _controllers[41].text = line.text.splitAfter(")");
+              if (line.text.contains("FAX") == true) {
+                _controllers[41].text =
+                    line.text.splitAfter(")").splitBefore("/");
+              }
+            }
+          }
+          print(line.text);
+        }
+      }
+    });
+  }
+
+  Future<void> _pickVideo() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.video,
+    );
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      _controller = VideoPlayerController.file(file);
+      final bytes = file.readAsBytesSync();
+      video = base64Encode(bytes);
+      _initializeVideoPlayerFuture = _controller.initialize();
+      await GlobalVariables.uploadToCloudinary(file.path, 19, 1);
+      setState(() {});
+    }
+  }
+
+  Future<void> _checkNfcAvailability() async {
+    bool isAvailable = await NfcManager.instance.isAvailable();
+    setState(() {
+      _isNfcAvailable = isAvailable;
+    });
+  }
+
+  Future<void> _writeToNfc(String nickname) async {
+    String url = nickname;
+    NdefRecord record = NdefRecord.createUri(Uri.parse(url));
+    NdefMessage message = NdefMessage([record]);
+    NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
+      Ndef? ndef = Ndef.from(tag);
+      if (ndef != null) {
+        await ndef.write(message);
+        await NfcManager.instance.stopSession();
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.network(
+      'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
+    );
+    _initializeVideoPlayerFuture = _controller.initialize();
+    _checkNfcAvailability();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void changeColor(Color color) {
+    setState(() {
+      for (var i = 0; i < listtiles.length; i++) {
+        listtiles[i] = CardTextField(
+          listtiles[i].index,
+          listtiles[i]._controller,
+          color,
+        );
+      }
+    });
+  }
+
+  Widget AddOneScreen(String imagefile, String text1, String text2,
+      String text3, double index) {
     return Container(
-        height: 300,
+        height: 220,
         width: MediaQuery.of(context).size.width * (index),
-        padding: const EdgeInsets.symmetric(horizontal: 15),
+        padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
         child: Container(
           child: Column(
             children: [
               GestureDetector(
                 onTap: () {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          backgroundColor: Colors.transparent,
-                          contentPadding: EdgeInsets.all(0),
-                          content: Container(
-                            width: 400,
-                            height: 400,
-                            child: Image.file(
-                              File(imagefile),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        );
-                      });
+                  text3 == ''
+                      ? showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              backgroundColor: Colors.transparent,
+                              contentPadding: EdgeInsets.all(0),
+                              content: Container(
+                                width: 400,
+                                child: Image.file(
+                                  File(imagefile),
+                                  fit: BoxFit.fitWidth,
+                                ),
+                              ),
+                            );
+                          })
+                      : null;
                 },
                 child: Container(
                   width: MediaQuery.of(context).size.width * index,
-                  height: 260,
+                  height: 160,
                   child: Image.file(
                     File(imagefile),
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fitHeight,
                   ),
                 ),
               ),
@@ -183,23 +386,32 @@ class _OnlineCard extends State<OnlineCard> {
 
   Widget AddTwoScreens() {
     return Container(
-        height: 300,
+        height: 220,
         width: MediaQuery.of(context).size.width,
         child: Row(
           children: [
-            AddOneScreen(imageFiles[4], _textValues[6], _textValues[7], 0.45),
-            AddOneScreen(imageFiles[5], _textValues[9], _textValues[10], 0.45),
+            AddOneScreen(imageFiles[4], _textValues[6], _textValues[7],
+                _textValues[8], 0.45),
+            AddOneScreen(imageFiles[5], _textValues[9], _textValues[10],
+                _textValues[11], 0.45),
           ],
         ));
   }
 
   Widget AddThreeScreens(int index) {
     return CustomPage(
-      dotscount: 3,
+      dotscount: 2,
       pageInserts: [
-        AddOneScreen(imageFiles[6], _textValues[12], _textValues[13], 0.9),
-        AddOneScreen(imageFiles[7], _textValues[15], _textValues[16], 0.9),
-        AddOneScreen(imageFiles[8], _textValues[18], _textValues[19], 0.9),
+        Row(
+          children: [
+            AddOneScreen(imageFiles[6], _textValues[12], _textValues[13],
+                _textValues[14], 0.45),
+            AddOneScreen(imageFiles[7], _textValues[15], _textValues[16],
+                _textValues[17], 0.45),
+          ],
+        ),
+        AddOneScreen(imageFiles[8], _textValues[18], _textValues[19],
+            _textValues[20], 0.45),
       ],
       currentPage: index.toDouble(),
     );
@@ -207,12 +419,24 @@ class _OnlineCard extends State<OnlineCard> {
 
   Widget AddFourScreens(int index) {
     return CustomPage(
-      dotscount: 4,
+      dotscount: 2,
       pageInserts: [
-        AddOneScreen(imageFiles[9], _textValues[21], _textValues[22], 0.9),
-        AddOneScreen(imageFiles[10], _textValues[24], _textValues[25], 0.9),
-        AddOneScreen(imageFiles[11], _textValues[27], _textValues[28], 0.9),
-        AddOneScreen(imageFiles[12], _textValues[30], _textValues[31], 0.9),
+        Row(
+          children: [
+            AddOneScreen(imageFiles[9], _textValues[21], _textValues[22],
+                _textValues[23], 0.45),
+            AddOneScreen(imageFiles[10], _textValues[24], _textValues[25],
+                _textValues[26], 0.45),
+          ],
+        ),
+        Row(
+          children: [
+            AddOneScreen(imageFiles[11], _textValues[27], _textValues[28],
+                _textValues[29], 0.45),
+            AddOneScreen(imageFiles[12], _textValues[30], _textValues[31],
+                _textValues[32], 0.45),
+          ],
+        )
       ],
       currentPage: index.toDouble(),
     );
@@ -230,7 +454,19 @@ class _OnlineCard extends State<OnlineCard> {
     if (pickedFile != null) {
       setState(() {
         imageFiles[imageIndex] = pickedFile.path;
+        final file = File(imageFiles[imageIndex]);
+        if (imageIndex == 1) {
+          GlobalVariables.mainImage.add(file);
+          _recognizeText(file);
+        }
+
+        // final bytes = file.readAsBytesSync();
+        // final _ocrtext = FlutterTesseractOcr.extractText(imageFiles[imageIndex],
+        //     language: 'ja');
+        // encoded = base64Encode(bytes);
+        // print(_ocrtext);
       });
+      await GlobalVariables.uploadToCloudinary(pickedFile.path, imageIndex, 1);
     }
   }
 
@@ -314,7 +550,58 @@ class _OnlineCard extends State<OnlineCard> {
                 },
                 icon: Icon(Icons.delete)),
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                orderindex++;
+                setState(() {
+                  final content = _quillcontroller.document.toDelta().toJson();
+                  info.add({
+                    'text': content,
+                    'order': orderindex,
+                    'size': 6,
+                    'startTime': GlobalVariables.reservationStart,
+                    'endTime': GlobalVariables.reservationEnd
+                  });
+                  lines =
+                      (_quillcontroller.document.length / 30).ceil().toDouble();
+                  _quillcontroller1 = QuillController(
+                      document: Document.fromJson(content),
+                      selection:
+                          TextSelection.collapsed(offset: content.length - 1));
+                });
+                Navigator.of(context).pop();
+                widgetList1.add(Column(children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 20,
+                    color: Colors.grey.withOpacity(0.5),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    width: MediaQuery.of(context).size.width,
+                    height: 130,
+                    child: QuillProvider(
+                      configurations:
+                          QuillConfigurations(controller: _quillcontroller1),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: QuillEditor(
+                              focusNode: FocusNode(),
+                              scrollController: ScrollController(
+                                  initialScrollOffset: 0,
+                                  keepScrollOffset: false),
+                              configurations: QuillEditorConfigurations(
+                                  padding: EdgeInsets.all(0),
+                                  readOnly: true,
+                                  showCursor: false),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                ]));
+              },
               icon: SvgPicture.asset('assets/images/preserve.svg'),
               iconSize: 50,
             ),
@@ -337,130 +624,194 @@ class _OnlineCard extends State<OnlineCard> {
   }
 
   void _showDegime(BuildContext context) {
+    degimecontroller.text = "https://degime.net/";
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           contentPadding: EdgeInsets.only(top: 10),
-          content: Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.all(0),
-              width: MediaQuery.of(context).size.width * 0.9,
-              height: 550,
-              child: Stack(
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
+          content: SingleChildScrollView(
+            child: Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.all(0),
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: 550,
+                child: Stack(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                  padding: EdgeInsets.only(top: 7),
+                                  child: Text(
+                                    '公開されました！',
+                                    style: TextStyle(
+                                        color: Color(0xFF4C31F4),
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold),
+                                  )),
+                            ]),
+                        10.height,
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                                padding: EdgeInsets.only(top: 7),
-                                child: Text(
-                                  '公開されました！',
-                                  style: TextStyle(
-                                      color: Color(0xFF4C31F4),
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold),
-                                )),
-                          ]),
-                      10.height,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                              child: Cancelbutton(
-                            string: 'プレビュー',
-                            color: Color(0xFF0E9CFF),
-                            onPressed: () {},
-                          )),
-                        ],
-                      ),
-                      20.height,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ComTextField(
-                              controller: _controllers[39],
-                              textheight: 25,
-                              textwidth: 250,
-                              callback: (text) => _addTextValue(text, 39),
-                              hinttext: 'https://degime.net/gopty'),
-                        ],
-                      ),
-                      20.height,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            child: Image.asset('assets/images/degime.png'),
-                          )
-                        ],
-                      ),
-                      90.height,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                              child: Cancelbutton(
-                            string: 'すぐ購入する',
-                            color: Color(0xFFB6B6B9),
-                            onPressed: () {},
-                          )),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          MyCheckbox(
-                            onChanged: (bool? value) {
-                              checked = value!;
-                            },
-                          ),
-                          Text(
-                            '今後この画面を出さない',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                  Positioned(
-                      top: 300,
-                      left: 5,
-                      child: Center(
-                          child: Column(
-                        children: [
-                          Container(
-                            alignment: Alignment.center,
-                            child: Text(
-                              'Degimeカードにシフトしませんか？',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                                child: Cancelbutton(
+                              string: 'プレビュー',
+                              color: Color(0xFF0E9CFF),
+                              onPressed: () {},
+                            )),
+                          ],
+                        ),
+                        20.height,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ComTextField(
+                                controller: degimecontroller,
+                                textheight: 25,
+                                maxline: 1,
+                                textwidth: 250,
+                                suffix: IconButton(
+                                    onPressed: () {}, icon: Icon(Icons.copy)),
+                                callback: (text) => _addTextValue(text, 54),
+                                hinttext: 'https://degime.net/gopty'),
+                          ],
+                        ),
+                        20.height,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              child: Image.asset('assets/images/degime.png'),
+                            )
+                          ],
+                        ),
+                        90.height,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                                child: Cancelbutton(
+                              string: 'すぐ購入する',
+                              color: Color(0xFFB6B6B9),
+                              onPressed: () async {
+                                for (int i = 0;
+                                    i < GlobalVariables.mainImage.length;
+                                    i++) {}
+                                print(degimecontroller.text.splitAfter('net/'));
+                                for (int i = 0; i < info.length; i++) {
+                                  info[i]['order'] = i;
+                                  if (info[i]['size'] == 1) {
+                                    imageLink1.add(info[i]);
+                                  }
+                                  if (info[i]['size'] == 2) {
+                                    imageLink2.add(info[i]);
+                                  }
+                                  if (info[i]['size'] == 3) {
+                                    imageLink3.add(info[i]);
+                                  }
+                                  if (info[i]['size'] == 4) {
+                                    imageLink4.add(info[i]);
+                                  }
+                                  if (info[i]['size'] == 5) {
+                                    videoLink.add(info[i]);
+                                  }
+                                  if (info[i]['size'] == 6) {
+                                    textLink.add(info[i]);
+                                  }
+                                  if (info[i]['size'] == 7) {
+                                    profileLink.add(info[i]);
+                                  }
+                                  if (info[i]['size'] == 8) {
+                                    pdfLink.add(info[i]);
+                                  }
+                                  if (info[i]['size'] == 9) {
+                                    mapLink.add(info[i]);
+                                  }
+                                  if (info[i]['size'] == 10) {
+                                    spaceAdd.add(info[i]);
+                                  }
+                                }
+                                await publicCard();
+                                GlobalVariables.landingurl =
+                                    degimecontroller.text;
+                                GlobalVariables.landingavatar =
+                                    GlobalVariables.imageUrls[0];
+                                imageLink1 = [];
+                                imageLink2 = [];
+                                imageLink3 = [];
+                                imageLink4 = [];
+                                videoLink = [];
+                                textLink = [];
+                                mapLink = [];
+                                profileLink = [];
+                                pdfLink = [];
+                                _checkNfcAvailability();
+                                _isNfcAvailable
+                                    ? _writeToNfc(degimecontroller.text)
+                                    : Fluttertoast.showToast(
+                                        msg: "NFC is not connected.");
+                                Navigator.of(context).pop();
+                              },
+                            )),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            MyCheckbox(
+                              onChanged: (bool? value) {
+                                checked = value!;
+                              },
                             ),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            child: Text(
-                              '今までの名刺からデジタル名刺へ \n相手のスマホに近づけるだけで、あな\nたのプロフィールページを瞬時に表示\nすることができます',
+                            Text(
+                              '今後この画面を出さない',
                               style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF906579)),
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                    Positioned(
+                        top: 300,
+                        left: 5,
+                        child: Center(
+                            child: Column(
+                          children: [
+                            Container(
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Degimeカードにシフトしませんか？',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
                             ),
-                          ),
-                        ],
-                      )))
-                ],
-              )),
+                            Container(
+                              alignment: Alignment.center,
+                              child: Text(
+                                '今までの名刺からデジタル名刺へ \n相手のスマホに近づけるだけで、あな\nたのプロフィールページを瞬時に表示\nすることができます',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF906579)),
+                              ),
+                            ),
+                          ],
+                        )))
+                  ],
+                )),
+          ),
         );
       },
     );
   }
 
-  Widget _pageView(int index, int textorder) {
+  Widget _pageView(int index, int textorder, String imageUrl) {
     return Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(0),
@@ -474,28 +825,39 @@ class _OnlineCard extends State<OnlineCard> {
                 uploadheight: 140,
                 uploadwidth: MediaQuery.of(context).size.width * 0.7,
                 imageFile: imageFiles[index],
+                imageUrl: imageUrl,
                 onPress: () async {
                   await pickImage(context, index);
                   Navigator.of(context).pop();
                   if (index == 3) {
+                    _controllers[5].text = '';
                     _showOneScreenAdd(context);
                   } else if (index == 4) {
+                    _controllers[8].text = '';
                     _showTwoScreensAdd(context, 0);
                   } else if (index == 5) {
+                    _controllers[11].text = '';
                     _showTwoScreensAdd(context, 1);
                   } else if (index == 6) {
+                    _controllers[14].text = '';
                     _showThreeScreensAdd(context, 0);
                   } else if (index == 7) {
+                    _controllers[17].text = '';
                     _showThreeScreensAdd(context, 1);
                   } else if (index == 8) {
+                    _controllers[20].text = '';
                     _showThreeScreensAdd(context, 2);
                   } else if (index == 9) {
+                    _controllers[23].text = '';
                     _showFourScreensAdd(context, 0);
                   } else if (index == 10) {
+                    _controllers[26].text = '';
                     _showFourScreensAdd(context, 1);
                   } else if (index == 11) {
+                    _controllers[29].text = '';
                     _showFourScreensAdd(context, 2);
                   } else if (index == 12) {
+                    _controllers[32].text = '';
                     _showFourScreensAdd(context, 3);
                   }
                 }),
@@ -518,13 +880,37 @@ class _OnlineCard extends State<OnlineCard> {
                 controller: _controllers[textorder + 2],
                 textheight: 35,
                 textwidth: MediaQuery.of(context).size.width * 0.7,
-                callback: (text) => _addTextValue(text, textorder + 2),
+                completeCall: () {
+                  Navigator.of(context).pop();
+                  if (index == 3) {
+                    _showOneScreenAdd(context);
+                  } else if (index == 4) {
+                    _showTwoScreensAdd(context, 0);
+                  } else if (index == 5) {
+                    _showTwoScreensAdd(context, 1);
+                  } else if (index == 6) {
+                    _showThreeScreensAdd(context, 0);
+                  } else if (index == 7) {
+                    _showThreeScreensAdd(context, 1);
+                  } else if (index == 8) {
+                    _showThreeScreensAdd(context, 2);
+                  } else if (index == 9) {
+                    _showFourScreensAdd(context, 0);
+                  } else if (index == 10) {
+                    _showFourScreensAdd(context, 1);
+                  } else if (index == 11) {
+                    _showFourScreensAdd(context, 2);
+                  } else if (index == 12) {
+                    _showFourScreensAdd(context, 3);
+                  }
+                },
+                callback: (text) {
+                  _addTextValue(text, textorder + 2);
+                },
                 hinttext: 'URL'),
           ],
         ));
   }
-
-  File? _pdfFile;
 
   Future<void> _pickPDF() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -535,58 +921,131 @@ class _OnlineCard extends State<OnlineCard> {
       setState(() {
         _pdfFile = File(result.files.single.path!);
       });
+      await GlobalVariables.uploadToCloudinary(_pdfFile!.path, 20, 1);
     }
   }
 
   Widget PdfScreen(File filepath) {
-    return Container(
-        alignment: Alignment.center,
-        padding: EdgeInsets.all(0),
-        width: MediaQuery.of(context).size.width * 0.8,
-        height: 300,
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.7,
-                  height: 250,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(
-                        color: Colors.black.withOpacity(0.3), width: 1.0),
-                  ),
-                  child: SfPdfViewer.file(filepath)),
-              10.height,
-              Container(
-                alignment: Alignment.topCenter,
-                width: 150,
-                height: 35,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    gradient: LinearGradient(
-                        colors: [Color(0xFFFF7D54), Colors.white],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter)),
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide.none,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                  onPressed: () {},
-                  child: const Text(
-                    'ダウンロード',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
+    return Center(
+      child: Container(
+          alignment: Alignment.center,
+          padding: EdgeInsets.all(0),
+          width: MediaQuery.of(context).size.width * 0.8,
+          height: 300,
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    height: 230,
+                    child: SfPdfViewer.file(filepath)),
+                10.height,
+                Container(
+                  child: Column(
+                    children: [
+                      Text(
+                        _controllers[55].text,
+                        style: TextStyle(fontSize: 16, color: Colors.black),
+                      ),
+                      Text(
+                        _controllers[56].text,
+                        style: TextStyle(fontSize: 14, color: Colors.black),
+                      )
+                    ],
                   ),
                 ),
-              )
-            ]));
+                Container(
+                  alignment: Alignment.topCenter,
+                  width: 150,
+                  height: 25,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      gradient: LinearGradient(
+                          colors: [Color(0xFFFF7D54), Colors.white],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter)),
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide.none,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () {},
+                    child: const Text(
+                      'ダウンロード',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                )
+              ])),
+    );
+  }
+
+  Widget MapScreen() {
+    return Center(
+      child: Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(10),
+        width: MediaQuery.of(context).size.width * 0.8,
+        height: 300,
+        child: Container(
+            width: MediaQuery.of(context).size.width * 0.7,
+            height: 280,
+            child: WebViewWidget(controller: _webcontroller1)),
+      ),
+    );
+  }
+
+  Widget SpaceScreen() {
+    return Stack(children: [
+      Container(
+          padding: EdgeInsets.all(0),
+          width: MediaQuery.of(context).size.width * 0.9,
+          height: 5 * GlobalVariables.space,
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.5),
+          )),
+    ]);
+  }
+
+  Widget VideoScreen(VideoPlayerController controller) {
+    return Container(
+        alignment: Alignment.center,
+        margin: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width * 0.15,
+        ),
+        padding: EdgeInsets.all(10),
+        width: MediaQuery.of(context).size.width * 0.7,
+        height: 220,
+        child: GestureDetector(
+          onTap: () {
+            setState(() {
+              if (controller.value.isPlaying) {
+                controller.pause();
+              } else {
+                controller.play();
+              }
+            });
+          },
+          child: FutureBuilder(
+            future: _initializeVideoPlayerFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                return AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: VideoPlayer(_controller),
+                );
+              } else {
+                return Center(child: CircularProgressIndicator());
+              }
+            },
+          ),
+        ));
   }
 
   void _showMaporMovie(BuildContext context, String url, int index) {
@@ -595,63 +1054,149 @@ class _OnlineCard extends State<OnlineCard> {
       builder: (BuildContext context) {
         return AlertDialog(
           contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-          content: Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.all(0),
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: 310,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                      width: MediaQuery.of(context).size.width * 0.7,
-                      height: 250,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(
-                            color: Colors.black.withOpacity(0.3), width: 1.0),
-                      ),
-                      child: _pdfFile != null
-                          ? SfPdfViewer.file(_pdfFile!)
-                          : IconButton(
-                              icon:
-                                  SvgPicture.asset('assets/images/upload.svg'),
-                              onPressed: () async {
-                                await _pickPDF();
-                                Navigator.of(context).pop();
-                                _showMaporMovie(context, url, index);
-                              })),
-                  10.height,
-                  ComTextField(
-                      controller: _controllers[index],
-                      textheight: 35,
-                      textwidth: MediaQuery.of(context).size.width * 0.7,
-                      callback: (text) => _addTextValue(text, index),
-                      hinttext: url),
-                ],
-              )),
+          content: SingleChildScrollView(
+            child: Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.all(0),
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: index != 35 ? 310 : 380,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                        width: MediaQuery.of(context).size.width * 0.7,
+                        height: 250,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                              color: Colors.black.withOpacity(0.3), width: 1.0),
+                        ),
+                        child: index == 35
+                            ? _pdfFile != null
+                                ? SfPdfViewer.file(_pdfFile!)
+                                : IconButton(
+                                    icon: SvgPicture.asset(
+                                        'assets/images/upload.svg'),
+                                    onPressed: () async {
+                                      await _pickPDF();
+                                      Navigator.of(context).pop();
+                                      _showMaporMovie(context, url, index);
+                                    })
+                            : index == 33
+                                ? GestureDetector(
+                                    onTap: () async {
+                                      await _pickVideo();
+                                      Navigator.of(context).pop();
+                                      _showMaporMovie(context, url, index);
+                                    },
+                                    child: FutureBuilder(
+                                      future: _initializeVideoPlayerFuture,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.done) {
+                                          return AspectRatio(
+                                            aspectRatio:
+                                                _controller.value.aspectRatio,
+                                            child: VideoPlayer(_controller),
+                                          );
+                                        } else {
+                                          return Center(
+                                              child:
+                                                  CircularProgressIndicator());
+                                        }
+                                      },
+                                    ),
+                                  )
+                                : index == 34
+                                    ? Center(
+                                        child: WebViewWidget(
+                                            controller: _webcontroller))
+                                    : IconButton(
+                                        icon: SvgPicture.asset(
+                                            'assets/images/upload.svg'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          _showMaporMovie(context, url, index);
+                                        })),
+                    10.height,
+                    ComTextField(
+                        controller: _controllers[index],
+                        textheight: 35,
+                        textwidth: MediaQuery.of(context).size.width * 0.7,
+                        callback: (text) => _addTextValue(text, index),
+                        hinttext: url),
+                    5.height,
+                    index == 35
+                        ? ComTextField(
+                            controller: _controllers[55],
+                            textheight: 35,
+                            textwidth: MediaQuery.of(context).size.width * 0.7,
+                            callback: (text) => _addTextValue(text, 55),
+                            hinttext: 'タイトル')
+                        : 5.height,
+                    5.height,
+                    index == 35
+                        ? ComTextField(
+                            controller: _controllers[56],
+                            textheight: 35,
+                            textwidth: MediaQuery.of(context).size.width * 0.7,
+                            callback: (text) => _addTextValue(text, 56),
+                            hinttext: 'テキスト')
+                        : 5.height,
+                  ],
+                )),
+          ),
           actionsPadding: EdgeInsets.all(0),
           actions: [
             index == 35
                 ? Container(
-                    padding: EdgeInsets.all(0),
-                    child: Row(
-                      children: [
-                        MyCheckbox(
-                          onChanged: (bool? value) {
-                            checked = value!;
-                          },
+                    alignment: Alignment.center,
+                    child: Container(
+                      padding: EdgeInsets.all(0),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              MyCheckbox(
+                                onChanged: (bool? value) {
+                                  checked = value!;
+                                },
+                              ),
+                              Text('ダウンロードを許可する')
+                            ],
+                          ),
+                        ],
+                      ),
+                    ))
+                : index == 33
+                    ? Center(
+                        child: Container(
+                          padding: EdgeInsets.all(0),
+                          width: 200,
+                          height: 30,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _controller.play();
+                                    });
+                                  },
+                                  child: Text('Play')),
+                              ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _controller.pause();
+                                    });
+                                  },
+                                  child: Text('Stop'))
+                            ],
+                          ),
                         ),
-                        Text('ダウンロードを許可する')
-                      ],
-                    ),
-                  )
-                : Container(
-                    height: 0,
-                    width: 0,
-                  ),
+                      )
+                    : 5.height,
             Container(
               padding: EdgeInsets.all(0),
               child: Row(
@@ -664,10 +1209,43 @@ class _OnlineCard extends State<OnlineCard> {
                       icon: Icon(Icons.delete)),
                   IconButton(
                     onPressed: () {
+                      orderindex++;
                       setState(() {
                         if (index == 35 && checked == true) {
                           Navigator.of(context).pop();
                           widgetList1.add(PdfScreen(_pdfFile!));
+                          info.add({
+                            'url': GlobalVariables.imageUrls[20],
+                            'title': _controllers[55],
+                            'text': _controllers[56],
+                            'order': orderindex,
+                            'size': 8,
+                            'startTime': GlobalVariables.reservationStart,
+                            'endTime': GlobalVariables.reservationEnd
+                          });
+                        }
+                        if (index == 33) {
+                          Navigator.of(context).pop();
+                          widgetList1.add(VideoScreen(_controller));
+                          info.add({
+                            'url': GlobalVariables.imageUrls[19],
+                            'order': orderindex,
+                            'size': 5,
+                            'startTime': GlobalVariables.reservationStart,
+                            'endTime': GlobalVariables.reservationEnd
+                          });
+                        }
+                        if (index == 34) {
+                          Navigator.of(context).pop();
+                          widgetList1.add(MapScreen());
+                          info.add({
+                            'imgLink': '',
+                            'mapLink': mapurl,
+                            'order': orderindex,
+                            'size': 9,
+                            'startTime': GlobalVariables.reservationStart,
+                            'endTime': GlobalVariables.reservationEnd
+                          });
                         }
                       });
                     },
@@ -675,7 +1253,14 @@ class _OnlineCard extends State<OnlineCard> {
                     iconSize: 50,
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Reservation();
+                          });
+                    },
                     icon: SvgPicture.asset('assets/images/reservation.svg'),
                     iconSize: 50,
                   ),
@@ -698,7 +1283,7 @@ class _OnlineCard extends State<OnlineCard> {
               alignment: Alignment.center,
               padding: EdgeInsets.all(0),
               width: MediaQuery.of(context).size.width * 0.8,
-              height: 230,
+              height: 300,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -713,6 +1298,8 @@ class _OnlineCard extends State<OnlineCard> {
                         onPressed: () {
                           setState(() {
                             _controllers[37].text = '資格';
+                            _color = Color(0xFFFF8F61);
+                            _width = 45;
                           });
                         },
                       ),
@@ -723,6 +1310,8 @@ class _OnlineCard extends State<OnlineCard> {
                         onPressed: () {
                           setState(() {
                             _controllers[37].text = '特技';
+                            _color = Color(0xFFFF8F61);
+                            _width = 45;
                           });
                         },
                       ),
@@ -733,6 +1322,8 @@ class _OnlineCard extends State<OnlineCard> {
                         onPressed: () {
                           setState(() {
                             _controllers[37].text = '経歴';
+                            _color = Color(0xFFFF8F61);
+                            _width = 45;
                           });
                         },
                       ),
@@ -743,11 +1334,14 @@ class _OnlineCard extends State<OnlineCard> {
                         onPressed: () {
                           setState(() {
                             _controllers[37].text = '事業の強み';
+                            _color = Color(0xFFFF8F61);
+                            _width = 120;
                           });
                         },
                       ),
                     ],
                   ),
+                  10.height,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -758,6 +1352,8 @@ class _OnlineCard extends State<OnlineCard> {
                         onPressed: () {
                           setState(() {
                             _controllers[37].text = '提供できるリソース';
+                            _color = Color(0xFFFF8F61);
+                            _width = 140;
                           });
                         },
                       ),
@@ -768,11 +1364,14 @@ class _OnlineCard extends State<OnlineCard> {
                         onPressed: () {
                           setState(() {
                             _controllers[37].text = 'イノベーション実績';
+                            _color = Color(0xFFFF8F61);
+                            _width = 140;
                           });
                         },
                       ),
                     ],
                   ),
+                  10.height,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -783,6 +1382,8 @@ class _OnlineCard extends State<OnlineCard> {
                         onPressed: () {
                           setState(() {
                             _controllers[37].text = 'お知らせ';
+                            _color = Color(0xFFFF8F61);
+                            _width = 80;
                           });
                         },
                       ),
@@ -793,6 +1394,8 @@ class _OnlineCard extends State<OnlineCard> {
                         onPressed: () {
                           setState(() {
                             _controllers[37].text = 'メッセージ';
+                            _color = Color(0xFFFF8F61);
+                            _width = 80;
                           });
                         },
                       ),
@@ -803,11 +1406,14 @@ class _OnlineCard extends State<OnlineCard> {
                         onPressed: () {
                           setState(() {
                             _controllers[37].text = 'アイデア募集中';
+                            _color = Color(0xFF9747FF);
+                            _width = 120;
                           });
                         },
                       ),
                     ],
                   ),
+                  10.height,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -818,6 +1424,8 @@ class _OnlineCard extends State<OnlineCard> {
                         onPressed: () {
                           setState(() {
                             _controllers[37].text = 'こんな企業と出会いたい';
+                            _color = Color(0xFF9747FF);
+                            _width = 160;
                           });
                         },
                       ),
@@ -828,11 +1436,14 @@ class _OnlineCard extends State<OnlineCard> {
                         onPressed: () {
                           setState(() {
                             _controllers[37].text = '抱えている問題';
+                            _color = Color(0xFF4F4F4F);
+                            _width = 130;
                           });
                         },
                       ),
                     ],
                   ),
+                  10.height,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -843,6 +1454,8 @@ class _OnlineCard extends State<OnlineCard> {
                         onPressed: () {
                           setState(() {
                             _controllers[37].text = '実現したいことや目標';
+                            _color = Color(0xFF9747FF);
+                            _width = 160;
                           });
                         },
                       ),
@@ -853,11 +1466,14 @@ class _OnlineCard extends State<OnlineCard> {
                         onPressed: () {
                           setState(() {
                             _controllers[37].text = '苦手なこと';
+                            _color = Color(0xFF4F4F4F);
+                            _width = 120;
                           });
                         },
                       ),
                     ],
                   ),
+                  10.height,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -870,6 +1486,7 @@ class _OnlineCard extends State<OnlineCard> {
                           hinttext: 'タイトル入力'),
                     ],
                   ),
+                  10.height,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -892,12 +1509,53 @@ class _OnlineCard extends State<OnlineCard> {
                 },
                 icon: Icon(Icons.delete)),
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                orderindex++;
+                setState(() {
+                  widgetList1.add(SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: 80,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SelectButton(
+                          title: _controllers[37].text,
+                          width: _width,
+                          backgroundColor: _color,
+                        ),
+                        Text(
+                          _controllers[38].text,
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        10.height
+                      ],
+                    ),
+                  ));
+                });
+                Navigator.of(context).pop();
+                info.add({
+                  'title': _controllers[37].text,
+                  'content': _controllers[38].text,
+                  'order': orderindex,
+                  'size': 7,
+                  'startTime': GlobalVariables.reservationStart,
+                  'endTime': GlobalVariables.reservationEnd
+                });
+                _controllers[37].clear();
+                _controllers[38].clear();
+              },
               icon: SvgPicture.asset('assets/images/preserve.svg'),
               iconSize: 50,
             ),
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).pop();
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Reservation();
+                    });
+              },
               icon: SvgPicture.asset('assets/images/reservation.svg'),
               iconSize: 50,
             ),
@@ -978,7 +1636,16 @@ class _OnlineCard extends State<OnlineCard> {
                       },
                       icon: Icon(Icons.delete)),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      orderindex++;
+                      setState(() {
+                        GlobalVariables.space = space.toDouble();
+                        Navigator.of(context).pop();
+                        widgetList1.add(SpaceScreen());
+                        info.add(
+                            {'space': space, 'order': orderindex, 'size': 10});
+                      });
+                    },
                     icon: SvgPicture.asset('assets/images/preserve.svg'),
                     iconSize: 50,
                   ),
@@ -1060,7 +1727,7 @@ class _OnlineCard extends State<OnlineCard> {
       builder: (BuildContext context) {
         return AlertDialog(
           contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-          content: _pageView(3, 3),
+          content: _pageView(3, 3, _textValues[5]),
           actionsPadding: EdgeInsets.all(0),
           actions: [
             IconButton(
@@ -1070,14 +1737,21 @@ class _OnlineCard extends State<OnlineCard> {
                 icon: Icon(Icons.delete)),
             IconButton(
               onPressed: () {
+                orderindex++;
                 setState(() {
-                  widgetList1.add(AddOneScreen(
-                      imageFiles[3], _textValues[3], _textValues[4], 0.9));
-                  widgetList2.add({
-                    "one": AddOneScreen(
-                        imageFiles[3], _textValues[3], _textValues[4], 0.9)
+                  widgetList1.add(AddOneScreen(imageFiles[3], _textValues[3],
+                      _textValues[4], _textValues[5], 0.9));
+                  info.add({
+                    'title': _controllers[3].text,
+                    'text': _controllers[4].text,
+                    'url': _controllers[5].text == ''
+                        ? GlobalVariables.imageUrls[3]
+                        : _controllers[5].text,
+                    'order': orderindex,
+                    'size': 1,
+                    'startTime': '',
+                    'endTime': ''
                   });
-                  widgetList2[0]["one"];
                   Navigator.of(context).pop();
                 });
               },
@@ -1085,7 +1759,14 @@ class _OnlineCard extends State<OnlineCard> {
               iconSize: 50,
             ),
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).pop();
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Reservation();
+                    });
+              },
               icon: SvgPicture.asset('assets/images/reservation.svg'),
               iconSize: 50,
             ),
@@ -1101,13 +1782,29 @@ class _OnlineCard extends State<OnlineCard> {
         builder: (BuildContext context) {
           return CustomDialog(
             dotscount: 2,
-            pageInserts: [_pageView(4, 6), _pageView(5, 9)],
+            pageInserts: [
+              _pageView(4, 6, _textValues[8]),
+              _pageView(5, 9, _textValues[11])
+            ],
             // pageInsert1: _pageView(4, 6),
             // pageInsert2: _pageView(5, 9),
             onPress: () {
+              orderindex++;
               setState(() {
                 widgetList1.add(AddTwoScreens());
                 Navigator.of(context).pop();
+                info.add({
+                  'title1': _controllers[6].text,
+                  'text1': _controllers[7].text,
+                  'url1': GlobalVariables.imageUrls[4],
+                  'title2': _controllers[9].text,
+                  'text2': _controllers[10].text,
+                  'url2': GlobalVariables.imageUrls[5],
+                  'order': orderindex,
+                  'size': 2,
+                  'startTime': GlobalVariables.reservationStart,
+                  'endTime': GlobalVariables.reservationEnd,
+                });
               });
             },
             currentPage: index.toDouble(),
@@ -1123,13 +1820,33 @@ class _OnlineCard extends State<OnlineCard> {
         builder: (BuildContext context) {
           return CustomDialog(
             dotscount: 3,
-            pageInserts: [_pageView(6, 12), _pageView(7, 15), _pageView(8, 18)],
+            pageInserts: [
+              _pageView(6, 12, _textValues[14]),
+              _pageView(7, 15, _textValues[17]),
+              _pageView(8, 18, _textValues[20])
+            ],
             // pageInsert1: _pageView(4, 6),
             // pageInsert2: _pageView(5, 9),
             onPress: () {
+              orderindex++;
               setState(() {
                 widgetList1.add(AddThreeScreens(0));
                 Navigator.of(context).pop();
+                info.add({
+                  'title1': _controllers[12].text,
+                  'text1': _controllers[13].text,
+                  'url1': GlobalVariables.imageUrls[6],
+                  'title2': _controllers[15].text,
+                  'text2': _controllers[16].text,
+                  'url2': GlobalVariables.imageUrls[7],
+                  'title3': _controllers[18].text,
+                  'text3': _controllers[19].text,
+                  'url3': GlobalVariables.imageUrls[8],
+                  'order': orderindex,
+                  'size': 3,
+                  'startTime': GlobalVariables.reservationStart,
+                  'endTime': GlobalVariables.reservationEnd,
+                });
               });
             },
             currentPage: index.toDouble(),
@@ -1146,17 +1863,36 @@ class _OnlineCard extends State<OnlineCard> {
           return CustomDialog(
             dotscount: 4,
             pageInserts: [
-              _pageView(9, 21),
-              _pageView(10, 24),
-              _pageView(11, 27),
-              _pageView(12, 30)
+              _pageView(9, 21, _textValues[23]),
+              _pageView(10, 24, _textValues[26]),
+              _pageView(11, 27, _textValues[29]),
+              _pageView(12, 30, _textValues[32])
             ],
             // pageInsert1: _pageView(4, 6),
             // pageInsert2: _pageView(5, 9),
             onPress: () {
+              orderindex++;
               setState(() {
                 widgetList1.add(AddFourScreens(0));
                 Navigator.of(context).pop();
+                info.add({
+                  'title1': _controllers[21].text,
+                  'text1': _controllers[22].text,
+                  'url1': GlobalVariables.imageUrls[9],
+                  'title2': _controllers[24].text,
+                  'text2': _controllers[25].text,
+                  'url2': GlobalVariables.imageUrls[10],
+                  'title3': _controllers[27].text,
+                  'text3': _controllers[28].text,
+                  'url3': GlobalVariables.imageUrls[11],
+                  'title4': _controllers[30].text,
+                  'text4': _controllers[31].text,
+                  'url4': GlobalVariables.imageUrls[12],
+                  'order': orderindex,
+                  'size': 4,
+                  'startTime': GlobalVariables.reservationStart,
+                  'endTime': GlobalVariables.reservationEnd,
+                });
               });
             },
             currentPage: index.toDouble(),
@@ -1421,8 +2157,7 @@ class _OnlineCard extends State<OnlineCard> {
         });
   }
 
-  int selectedIndex = -1;
-  late List<Widget> listtiles = [
+  late List<CardTextField> listtiles = [
     CardTextField('会社名', _controllers[2], selectedColor),
     CardTextField('役職', _controllers[40], selectedColor),
     CardTextField('会社URL', _controllers[53], selectedColor),
@@ -1482,6 +2217,7 @@ class _OnlineCard extends State<OnlineCard> {
                         )),
                     IconButton(
                         onPressed: () {
+                          Navigator.of(context).pop();
                           Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -1548,17 +2284,67 @@ class _OnlineCard extends State<OnlineCard> {
                                 width: screenWidth * 0.8,
                                 height: screenHeight * 0.3,
                                 decoration: BoxDecoration(
+                                    color: Colors.white,
                                     borderRadius: BorderRadius.circular(10.0),
                                     border: Border.all(
                                         color: const Color(0xFF2A08F8),
                                         width: 3.0)),
-                                child: imageFiles[1] != "1"
-                                    ? Image.file(
-                                        File(imageFiles[1]),
-                                        fit: BoxFit.fill,
+                                child: imageFiles[1] != "1" ||
+                                        widget.imagefile != null ||
+                                        GlobalVariables.mainImage.length > 0
+                                    ? PageView(
+                                        controller: _pageController1,
+                                        onPageChanged: (value) {
+                                          setState(() {
+                                            currentpage = value;
+                                          });
+                                        },
+                                        children: [
+                                          for (int i = 0;
+                                              i <
+                                                  GlobalVariables
+                                                      .mainImage.length;
+                                              i++)
+                                            Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 5,
+                                                ),
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    showDialog(
+                                                        context: context,
+                                                        builder: (BuildContext
+                                                            context) {
+                                                          return AlertDialog(
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            contentPadding:
+                                                                EdgeInsets.all(
+                                                                    0),
+                                                            content: Container(
+                                                              width: 200,
+                                                              height: 500,
+                                                              child: Image.file(
+                                                                GlobalVariables
+                                                                    .mainImage[i],
+                                                                fit:
+                                                                    BoxFit.fill,
+                                                              ),
+                                                            ),
+                                                          );
+                                                        });
+                                                  },
+                                                  child: Image.file(
+                                                    GlobalVariables
+                                                        .mainImage[i],
+                                                    fit: BoxFit.fitHeight,
+                                                  ),
+                                                ))
+                                        ],
                                       )
                                     : null,
-                              ),
+                              )
                             ],
                           ),
                           Positioned(
@@ -1585,7 +2371,31 @@ class _OnlineCard extends State<OnlineCard> {
                                                       0xFF2AC3FF,
                                                     ),
                                                     wordcolor: Colors.white,
-                                                    onPressed: () {},
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    CameraScreen(
+                                                                      str1: _controllers[
+                                                                              2]
+                                                                          .text,
+                                                                      str2: _controllers[
+                                                                              44]
+                                                                          .text,
+                                                                      str3: _controllers[
+                                                                              53]
+                                                                          .text,
+                                                                      str4: _controllers[
+                                                                              43]
+                                                                          .text,
+                                                                      str5: _controllers[
+                                                                              41]
+                                                                          .text,
+                                                                    )),
+                                                      );
+                                                    },
                                                   ),
                                                   FunctionButton(
                                                     title: '名刺・画像をアップロードする',
@@ -1605,7 +2415,27 @@ class _OnlineCard extends State<OnlineCard> {
                                             ),
                                           );
                                         });
-                                  }))
+                                  })),
+                          Positioned(
+                              top: 0,
+                              left: GlobalVariables.mainImage.length > 1
+                                  ? screenWidth * 0.3
+                                  : -100,
+                              child: DotsIndicator(
+                                dotsCount: GlobalVariables.mainImage.length == 0
+                                    ? 1
+                                    : GlobalVariables.mainImage.length,
+                                position: currentpage,
+                                decorator: DotsDecorator(
+                                  color: Colors.grey,
+                                  activeColor: Colors.grey,
+                                  size: const Size.square(5.0),
+                                  activeSize: const Size(10.0, 5.0),
+                                  activeShape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(2.5),
+                                  ),
+                                ),
+                              ))
                         ],
                       )
                     ],
@@ -1655,6 +2485,7 @@ class _OnlineCard extends State<OnlineCard> {
                                   textwidth: 185,
                                   callback: (text) {},
                                   hinttext: '氏名',
+                                  maxline: 1,
                                   controller: _controllers[39],
                                 ),
                               ]),
@@ -1667,6 +2498,7 @@ class _OnlineCard extends State<OnlineCard> {
                                       child: UploadField(
                                         uploadheight: 40,
                                         uploadwidth: 40,
+                                        imageUrl: '',
                                         imageFile: imageFiles[13],
                                         onPress: () {
                                           ShowIcons(context, 13);
@@ -1678,6 +2510,7 @@ class _OnlineCard extends State<OnlineCard> {
                                       child: UploadField(
                                         uploadheight: 40,
                                         uploadwidth: 40,
+                                        imageUrl: '',
                                         imageFile: imageFiles[14],
                                         onPress: () {
                                           ShowIcons(context, 14);
@@ -1689,6 +2522,7 @@ class _OnlineCard extends State<OnlineCard> {
                                       child: UploadField(
                                         uploadheight: 40,
                                         uploadwidth: 40,
+                                        imageUrl: '',
                                         imageFile: imageFiles[15],
                                         onPress: () {
                                           ShowIcons(context, 15);
@@ -1700,6 +2534,7 @@ class _OnlineCard extends State<OnlineCard> {
                                       child: UploadField(
                                         uploadheight: 40,
                                         uploadwidth: 40,
+                                        imageUrl: '',
                                         imageFile: imageFiles[16],
                                         onPress: () {
                                           ShowIcons(context, 16);
@@ -1766,10 +2601,8 @@ class _OnlineCard extends State<OnlineCard> {
                                                               onColorChanged:
                                                                   (Color
                                                                       color) {
-                                                                setState(() {
-                                                                  selectedColor =
-                                                                      color;
-                                                                });
+                                                                changeColor(
+                                                                    color);
                                                               },
                                                               showColorCode:
                                                                   true,
@@ -1844,28 +2677,82 @@ class _OnlineCard extends State<OnlineCard> {
                           width: screenWidth * 0.9,
                           height: widgetList1.length == 0
                               ? 0
-                              : 300 * widgetList1.length.toDouble(),
+                              : 220 *
+                                      widgetList1
+                                          .where((widget) =>
+                                              widget.runtimeType == Container)
+                                          .length
+                                          .toDouble() +
+                                  300 *
+                                      widgetList1
+                                          .where((widget) =>
+                                              widget.runtimeType == Center)
+                                          .length
+                                          .toDouble() +
+                                  80 *
+                                      widgetList1
+                                          .where((widget) =>
+                                              widget.runtimeType == SizedBox)
+                                          .length
+                                          .toDouble() +
+                                  (5 * GlobalVariables.space) *
+                                      widgetList1
+                                          .where((widget) =>
+                                              widget.runtimeType == Stack)
+                                          .length
+                                          .toDouble() +
+                                  150 *
+                                      widgetList1
+                                          .where((widget) =>
+                                              widget.runtimeType == Column)
+                                          .length
+                                          .toDouble(),
                           child: ListView.builder(
                               scrollDirection: Axis.vertical,
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: widgetList1.length,
                               itemBuilder: (context, index) {
-                                return Stack(
-                                  children: [
-                                    widgetList1[index],
-                                    Positioned(
-                                        top: 0,
-                                        right: 10,
-                                        child: IconButton(
-                                          icon: Icon(Icons.cancel_outlined),
-                                          onPressed: () {
-                                            setState(() {
-                                              widgetList1.removeAt(index);
-                                            });
-                                          },
-                                        ))
-                                  ],
+                                return LongPressDraggable<int>(
+                                  data: index,
+                                  child: DragTarget<int>(
+                                    onWillAccept: (data) => true,
+                                    onAccept: (data) {
+                                      setState(() {
+                                        final draggedelement =
+                                            widgetList1[data];
+                                        final draggedinfo = info[data];
+                                        widgetList1.removeAt(data);
+                                        info.removeAt(data);
+                                        widgetList1.insert(
+                                            index, draggedelement);
+                                        info.insert(index, draggedinfo);
+                                      });
+                                    },
+                                    builder:
+                                        (context, candidateData, rejectedData) {
+                                      return Stack(
+                                        children: [
+                                          widgetList1[index],
+                                          Positioned(
+                                              top: -10,
+                                              right: 10,
+                                              child: IconButton(
+                                                icon:
+                                                    Icon(Icons.cancel_outlined),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    widgetList1.removeAt(index);
+                                                    info.removeAt(index);
+                                                  });
+                                                },
+                                              ))
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                  feedback: widgetList1[index],
+                                  childWhenDragging: Container(),
                                 );
                               }),
                         ),
@@ -1941,7 +2828,7 @@ class _OnlineCard extends State<OnlineCard> {
                     children: [
                       FunctionButton(
                         title: '動画リンク追加',
-                        onPressed: () {
+                        onPressed: () async {
                           _showMaporMovie(context, 'Youtube Url', 33);
                         },
                       )
@@ -2007,12 +2894,135 @@ class _OnlineCard extends State<OnlineCard> {
                       )
                     ],
                   ),
-                  20.height
+                  20.height,
                 ],
               ),
             ),
           ),
         ));
+  }
+}
+
+class CameraScreen extends StatefulWidget {
+  String? str1;
+  String? str2;
+  String? str3;
+  String? str4;
+  String? str5;
+  CameraScreen(
+      {super.key, this.str1, this.str2, this.str3, this.str4, this.str5});
+  @override
+  _CameraScreenState createState() => _CameraScreenState();
+}
+
+class _CameraScreenState extends State<CameraScreen> {
+  late CameraController _controller;
+  late Future<void> _initializeControllerFuture;
+  File? _imageFile;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = CameraController(cameras[0], ResolutionPreset.medium);
+    _initializeControllerFuture = _controller.initialize();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _recognizeText(File processedImage, String str1, String str2,
+      String str3, String str4, String str5) async {
+    int index = 0;
+    final inputImage = InputImage.fromFile(processedImage);
+    final textRecognizer = GoogleMlKit.vision
+        .textRecognizer(script: TextRecognitionScript.japanese);
+    final recognisedText = await textRecognizer.processImage(inputImage);
+    String recognizedText = recognisedText.text;
+    setState(() {
+      for (TextBlock block in recognisedText.blocks) {
+        index++;
+        for (TextLine line in block.lines) {
+          if (line.text.length == 0)
+            break;
+          else {
+            if (line.text.contains("会社", 0) == true) {
+              str1 = line.text;
+            }
+            if (line.text.contains("〒", 0) == true) {
+              str2 = line.text.splitAfter(" ");
+            }
+            if (line.text.contains("http://", 0) == true) {
+              str3 = line.text;
+            }
+            if (line.text.contains("E-mail:", 0) == true) {
+              str4 = line.text.substring(7);
+            }
+            if (line.text.contains("TEL", 0) == true) {
+              str5 = line.text.splitAfter(")");
+              if (line.text.contains("FAX") == true) {
+                str5 = line.text.splitAfter(")").splitBefore("/");
+              }
+            }
+          }
+          print(line.text);
+        }
+      }
+    });
+  }
+
+  Future<void> _takePicture() async {
+    try {
+      await _initializeControllerFuture;
+      final Directory directory = await getApplicationCacheDirectory();
+      final String filePath = '${directory.path}/picture.jpg';
+      final XFile picture = await _controller.takePicture();
+      final File file = File(filePath);
+      await file.writeAsBytes(await picture.readAsBytes());
+      setState(() {
+        _imageFile = file;
+        GlobalVariables.mainImage.add(file);
+        GlobalVariables.uploadToCloudinary(file.path, 1, 1);
+        _recognizeText(file, widget.str1!, widget.str2!, widget.str3!,
+            widget.str4!, widget.str5!);
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Camera'),
+      ),
+      body: FutureBuilder<void>(
+        future: _initializeControllerFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return CameraPreview(_controller);
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await _takePicture();
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => OnlineCard(
+                      imagefile: _imageFile,
+                    )),
+          );
+        },
+        child: Icon(Icons.camera),
+      ),
+    );
   }
 }
 
@@ -2102,7 +3112,14 @@ class _CustomDialogState extends State<CustomDialog> {
           iconSize: 50,
         ),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pop();
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Reservation();
+                });
+          },
           icon: SvgPicture.asset('assets/images/reservation.svg'),
           iconSize: 50,
         ),
@@ -2143,6 +3160,8 @@ class _MyCheckboxState extends State<MyCheckbox> {
   }
 }
 
+QuillController _quillcontroller = QuillController.basic();
+
 class QuillEditorPage extends StatefulWidget {
   const QuillEditorPage({super.key});
   @override
@@ -2150,11 +3169,10 @@ class QuillEditorPage extends StatefulWidget {
 }
 
 class _QuillEditorPageState extends State<QuillEditorPage> {
-  final QuillController _controller = QuillController.basic();
   @override
   Widget build(BuildContext context) {
     return QuillProvider(
-      configurations: QuillConfigurations(controller: _controller),
+      configurations: QuillConfigurations(controller: _quillcontroller),
       child: Column(
         children: [
           const QuillToolbar(

@@ -1,8 +1,12 @@
 import 'package:degime_131/screen/FolderCreate_page.dart';
 import 'package:degime_131/utils/Cancelbutton.dart';
+import 'package:degime_131/utils/Global_variable.dart';
 import 'package:degime_131/utils/Okbutton.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:nb_utils/nb_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,6 +14,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:degime_131/screen/Landing_page.dart';
 import 'package:degime_131/screen/Menu_page.dart';
 import 'package:degime_131/screen/Chattingfield_page.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 // import 'package:degime_131/screen/Menu_page2.dart';
 // import 'package:degime_131/screen/Menu_page3.dart';
@@ -17,12 +23,18 @@ import 'package:degime_131/screen/Chattingfield_page.dart';
 class MyListTile extends StatefulWidget {
   final String imagePath;
   final double svgRight;
+  final String title;
+  final String subtitle;
   final MyReturnButton? myReturnButton;
+  final Function()? changeSetting;
   final bool isFirstPage;
 
   MyListTile({
     Key? key,
     this.myReturnButton,
+    required this.title,
+    this.changeSetting,
+    required this.subtitle,
     required this.imagePath,
     required this.svgRight,
     required this.isFirstPage,
@@ -48,11 +60,15 @@ class _MyListTileState extends State<MyListTile> {
                       offset: const Offset(0, 2),
                       blurRadius: 3)
                 ]),
-                child: Image.asset(
-                  widget.imagePath,
-                  width: 50,
-                  height: 50,
-                ),
+                child: widget.imagePath.contains('assets')
+                    ? Image.asset(
+                        widget.imagePath,
+                        width: 50,
+                      )
+                    : Image.network(
+                        widget.imagePath,
+                        width: 50,
+                      ),
               )),
           5.width,
           const Positioned(
@@ -65,11 +81,11 @@ class _MyListTileState extends State<MyListTile> {
           )
         ],
       ),
-      title: const Text(
-        'Jane Cooper',
+      title: Text(
+        widget.title,
         style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
       ),
-      subtitle: const Text('(270)555-0117, 2019/11/20',
+      subtitle: Text(widget.subtitle,
           style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
@@ -85,9 +101,7 @@ class _MyListTileState extends State<MyListTile> {
             width: 140,
             height: 35,
             child: OutlinedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: widget.changeSetting,
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.all(0),
                   backgroundColor: Colors.white,
@@ -172,23 +186,14 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPage extends State<ChatPage> {
   TextEditingController _controller = TextEditingController();
-  late List<MyListTile> listtiles = [
-    MyListTile(
-      imagePath: 'assets/images/avatar1.png',
-      svgRight: 100,
-      isFirstPage: true,
-    ),
-    MyListTile(
-      imagePath: 'assets/images/avatar2.png',
-      svgRight: 0,
-      isFirstPage: true,
-    ),
-    MyListTile(
-      imagePath: 'assets/images/avatar3.png',
-      svgRight: 100,
-      isFirstPage: true,
-    ),
-  ];
+
+  @override
+  void initState() {
+    super.initState();
+    GlobalVariables.getMember();
+    GlobalVariables.getRoom();
+  }
+
   @override
   Widget build(BuildContext context) {
     //bool isSelected = false;
@@ -305,19 +310,19 @@ class _ChatPage extends State<ChatPage> {
                             Tab(
                               child: Stack(
                                 children: [
-                                  const Positioned(
-                                    top: 25,
-                                    right: 5,
-                                    child: CircleAvatar(
-                                      radius: 8.0,
-                                      backgroundColor: Colors.red,
-                                      child: Text('3',
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                  ),
+                                  // const Positioned(
+                                  //   top: 25,
+                                  //   right: 5,
+                                  //   child: CircleAvatar(
+                                  //     radius: 8.0,
+                                  //     backgroundColor: Colors.red,
+                                  //     child: Text('3',
+                                  //         style: TextStyle(
+                                  //             fontSize: 10,
+                                  //             color: Colors.white,
+                                  //             fontWeight: FontWeight.bold)),
+                                  //   ),
+                                  // ),
                                   Container(
                                     alignment: Alignment.center,
                                     width: 100,
@@ -332,19 +337,19 @@ class _ChatPage extends State<ChatPage> {
                             Tab(
                               child: Stack(
                                 children: [
-                                  const Positioned(
-                                    top: 25,
-                                    right: 5,
-                                    child: CircleAvatar(
-                                      radius: 8.0,
-                                      backgroundColor: Color(0xFF9747FF),
-                                      child: Text('5',
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                  ),
+                                  // const Positioned(
+                                  //   top: 25,
+                                  //   right: 5,
+                                  //   child: CircleAvatar(
+                                  //     radius: 8.0,
+                                  //     backgroundColor: Color(0xFF9747FF),
+                                  //     child: Text('5',
+                                  //         style: TextStyle(
+                                  //             fontSize: 10,
+                                  //             color: Colors.white,
+                                  //             fontWeight: FontWeight.bold)),
+                                  //   ),
+                                  // ),
                                   Container(
                                     alignment: Alignment.center,
                                     width: 100,
@@ -383,36 +388,62 @@ class FirstScreen extends StatefulWidget {
 }
 
 class _FirstScreen extends State<FirstScreen> {
-  late List<MyListTile> listtiles = [
-    MyListTile(
-      imagePath: 'assets/images/avatar1.png',
-      svgRight: 100,
-      isFirstPage: true,
-    ),
-    MyListTile(
-      imagePath: 'assets/images/avatar2.png',
-      svgRight: 0,
-      isFirstPage: true,
-    ),
-    MyListTile(
-      imagePath: 'assets/images/avatar3.png',
-      svgRight: 100,
-      isFirstPage: true,
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    GlobalVariables.getMember();
+  }
+
+  Future<void> changeSetting(String member, String settingname) async {
+    var url = Uri.parse(
+        'http://194.87.199.12:5000/social/private/contactdata?is_chat_available=${settingname}');
+    var data = {"member": member};
+
+    final requestbody = jsonEncode(data);
+    var response = await http.put(url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'token ${GlobalVariables.token}'
+        },
+        body: requestbody);
+    await GlobalVariables.getMember();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
         child: Container(
             child: ListView.builder(
-      itemCount: listtiles.length,
+      itemCount: GlobalVariables.memberlist.length,
       padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
-        return listtiles[index];
+        return (GlobalVariables.memberlist[index]["is_incoming"] == "True" &&
+                GlobalVariables.memberlist[index]["is_chat_available"] ==
+                    "False"
+            ? MyListTile(
+                imagePath:
+                    GlobalVariables.memberlist[index]["member_avatar"] != null
+                        ? GlobalVariables.memberlist[index]["member_avatar"]
+                        : 'assets/images/defaultavatar.png',
+                title: GlobalVariables.memberlist[index]["member"],
+                subtitle: GlobalVariables.memberlist[index]["member_email"],
+                svgRight: 0,
+                isFirstPage: true,
+                changeSetting: () {
+                  changeSetting(
+                      GlobalVariables.memberlist[index]["member"], "True");
+                  Navigator.of(context).pop();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) => ChatPage(
+                              index: 0, addFolder: [], folderName: '')));
+                },
+              )
+            : 0.height);
       },
     )));
   }
@@ -434,10 +465,10 @@ class SecondScreen extends StatefulWidget {
 class Item {
   final String path;
   final String title;
-  final String subtitle;
+  final String roomname;
   bool isSelected;
 
-  Item(this.path, this.title, this.subtitle, {this.isSelected = false});
+  Item(this.path, this.title, this.roomname, {this.isSelected = false});
 }
 
 class _SecondScreen extends State<SecondScreen> {
@@ -445,23 +476,45 @@ class _SecondScreen extends State<SecondScreen> {
   Set<int> selectedIndexes = {};
   bool isSelectionMode = false;
 
+  Future<void> deleteRoom(String roomname) async {
+    var url = Uri.parse(
+        'http://194.87.199.12:5000/social/private/chatroom?room_name=${roomname}');
+    var response = await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'token ${GlobalVariables.token}'
+      },
+    );
+    await GlobalVariables.getRoom();
+    Navigator.of(context).pop();
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => ChatPage(
+                  folderName: '',
+                  index: 0,
+                  addFolder: [],
+                )));
+  }
+
   @override
   void initState() {
     super.initState();
-    items = [
-      Item('assets/images/avatar1.png', 'Jane Cooper',
-          '(270)555-0117, 2019/11/20'),
-      Item('assets/images/avatar2.png', 'Ginger Heart',
-          '(270)555-0117, 2019/11/20'),
-      Item('assets/images/avatar3.png', 'Tsubasa Fujimoto',
-          '(270)555-0117, 2019/11/20'),
-      Item('assets/images/avatar1.png', 'John Yippy',
-          '(270)555-0117, 2019/11/20'),
-      Item('assets/images/avatar3.png', 'Kittisak Mortar',
-          '(270)555-0117, 2019/11/20'),
-      Item('assets/images/avatar2.png', 'Ananda Govindasamy',
-          '(270)555-0117, 2019/11/20'),
-    ];
+    GlobalVariables.getRoom();
+    for (var json in GlobalVariables.chatroom) {
+      if (json["member"].length == 2) {
+        items.add(Item(
+            json["member"][0]['username'] == GlobalVariables.username
+                ? json["member"][1]['avatar'].toString()
+                : json["member"][0]['avatar'].toString(),
+            json["chat_group"],
+            json["room_name"]));
+      } else {
+        items.add(Item(
+            'assets/images/group.png', json["chat_group"], json["room_name"]));
+      }
+    }
     selectedIndexes = {};
   }
 
@@ -481,7 +534,7 @@ class _SecondScreen extends State<SecondScreen> {
       indexesToRemove
           .sort((a, b) => b.compareTo(a)); // Sort in descending order
       for (final index in indexesToRemove) {
-        items.removeAt(index);
+        deleteRoom(GlobalVariables.chatroom[index]["room_name"]);
       }
       selectedIndexes.clear();
       isSelectionMode = false;
@@ -607,71 +660,30 @@ class _SecondScreen extends State<SecondScreen> {
           ],
         ),
         body: ListView.builder(
-          itemCount: widget.index == 0 ? items.length : items.length + 1,
-          itemBuilder: (context, index) {
-            if (index == items.length) {
-              return ListTile(
-                leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(70),
-                    child: Container(
-                        width: 50,
-                        height: 50,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Colors.grey,
-                            borderRadius: BorderRadius.circular(25)),
-                        child: Text(
-                          'グループ',
-                          style: TextStyle(color: Colors.white, fontSize: 12),
-                        ))),
-                trailing: isSelectionMode
-                    ? Checkbox(
-                        value: selectedIndexes.contains(index),
-                        onChanged: (value) {
-                          setState(() {
-                            toggleItemSelection(index);
-                          });
-                        },
-                        shape: const CircleBorder(),
-                      )
-                    : null,
-                title: Text(widget.folderName),
-                onTap: () {
-                  if (isSelectionMode) {
-                    setState(() {
-                      toggleItemSelection(index);
-                    });
-                  } else {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ChattingField(addFolder: widget.addFolder),
-                        ));
-                  }
-                },
-                tileColor: selectedIndexes.contains(index)
-                    ? Colors.grey.withOpacity(0.3)
-                    : null,
-              );
-            } else {
+            itemCount: items.length,
+            itemBuilder: (context, index) {
               final item = items[index];
               return ListTile(
                 leading: ClipRRect(
                     borderRadius: BorderRadius.circular(70),
                     child: Container(
-                      decoration: BoxDecoration(boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey.shade500,
-                            offset: const Offset(0, 2),
-                            blurRadius: 3)
-                      ]),
-                      child: Image.asset(
-                        item.path,
-                        width: 50,
-                        height: 50,
-                      ),
-                    )),
+                        child: item.path.contains("http")
+                            ? Image.network(
+                                item.path,
+                                width: 50,
+                                height: 50,
+                              )
+                            : item.path.contains("assets")
+                                ? Image.asset(
+                                    item.path,
+                                    width: 50,
+                                    height: 50,
+                                  )
+                                : Image.asset(
+                                    "assets/images/defaultavatar.png",
+                                    width: 50,
+                                    height: 50,
+                                  ))),
                 trailing: isSelectionMode
                     ? Checkbox(
                         value: selectedIndexes.contains(index),
@@ -684,23 +696,40 @@ class _SecondScreen extends State<SecondScreen> {
                       )
                     : null,
                 title: Text(item.title),
-                subtitle: Text(item.subtitle),
-                onTap: () {
+                onTap: () async {
                   if (isSelectionMode) {
                     setState(() {
                       toggleItemSelection(index);
                     });
                   } else {
+                    var websocketUrl =
+                        'ws://194.87.199.12:5000/chat/${item.roomname}/${GlobalVariables.token}/${GlobalVariables.username}';
+                    var channel = WebSocketChannel.connect(
+                      Uri.parse(websocketUrl),
+                    );
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ChattingField(
-                            imagePath: item.path,
-                            title: item.title,
-                            subtitle: item.subtitle,
-                            addFolder: [],
-                          ),
+                          builder: (BuildContext context) => ChattingField(
+                              member: GlobalVariables.chatroom[index]),
                         ));
+                    GlobalVariables.index = index;
+                    GlobalVariables.channel = channel;
+                    GlobalVariables.messages = [];
+                    channel.stream.listen((message) {
+                      setState(() {
+                        print(message);
+                        GlobalVariables.messages.add(message);
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    ChattingField(
+                                        member: GlobalVariables
+                                            .chatroom[GlobalVariables.index])));
+                      });
+                    });
                   }
                 },
                 onLongPress: () {
@@ -713,9 +742,7 @@ class _SecondScreen extends State<SecondScreen> {
                     ? Colors.grey.withOpacity(0.3)
                     : null,
               );
-            }
-          },
-        ),
+            }),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             showDialog(
@@ -758,6 +785,7 @@ class _SecondScreen extends State<SecondScreen> {
                                       onPressed: () {
                                         setState(() {
                                           widget.folderName = _controller.text;
+                                          Navigator.of(context).pop();
                                         });
                                         Navigator.push(
                                             context,
@@ -770,7 +798,11 @@ class _SecondScreen extends State<SecondScreen> {
                                         print(widget.folderName);
                                       },
                                     ),
-                                    Cancelbutton()
+                                    Cancelbutton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    )
                                   ],
                                 );
                               },

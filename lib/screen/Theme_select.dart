@@ -42,6 +42,57 @@ class _ThemeSelect extends State<ThemeSelect> {
   }
 }
 
+class ThemeSelect2 extends StatefulWidget {
+  const ThemeSelect2({super.key});
+  static String tag = "/ThemeSelect1";
+  @override
+  State<ThemeSelect2> createState() => _ThemeSelect2();
+}
+
+class _ThemeSelect2 extends State<ThemeSelect2>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.animateTo(0); // Select the second tab
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 0,
+        backgroundColor: const Color(0xFFF2F2F7),
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Color(0xFF9747FF),
+          unselectedLabelColor: Colors.black,
+          labelColor: Color(0xFF9747FF),
+          labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          tabs: [Tab(text: 'オンライン名刺'), Tab(text: 'SNSリンクツリー')],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: const [
+          FirstScreen(),
+          SecondScreen(),
+        ],
+      ),
+    );
+  }
+}
+
+
 class ThemeSelect1 extends StatefulWidget {
   const ThemeSelect1({super.key});
   static String tag = "/ThemeSelect1";

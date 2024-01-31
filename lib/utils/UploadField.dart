@@ -7,12 +7,14 @@ class UploadField extends StatelessWidget {
   final double uploadheight;
   final Function()? onPress;
   final String imageFile;
+  String imageUrl;
 
-  const UploadField(
+  UploadField(
       {super.key,
       required this.uploadheight,
       required this.uploadwidth,
       required this.imageFile,
+      required this.imageUrl,
       this.onPress});
 
   @override
@@ -22,7 +24,7 @@ class UploadField extends StatelessWidget {
         Column(
           children: [
             GestureDetector(
-              onTap: onPress,
+              onTap: imageFile != "1" || imageUrl != "" ? onPress : null,
               child: Container(
                 width: uploadwidth,
                 height: uploadheight,
@@ -45,9 +47,38 @@ class UploadField extends StatelessWidget {
                                 fit: BoxFit.cover,
                               ),
                       )
-                    : IconButton(
-                        icon: SvgPicture.asset('assets/images/upload.svg'),
-                        onPressed: onPress),
+                    : imageUrl != ''
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(10.0),
+                            child: Image.network(
+                              imageUrl,
+                              loadingBuilder: (BuildContext context,
+                                  Widget child,
+                                  ImageChunkEvent? loadingProgress) {
+                                if (loadingProgress == null) {
+                                  return child;
+                                }
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                        : null,
+                                  ),
+                                );
+                              },
+                              errorBuilder: (BuildContext context, Object error,
+                                  StackTrace? stackTrace) {
+                                return Text('Error loading image');
+                              },
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : IconButton(
+                            icon: SvgPicture.asset('assets/images/upload.svg'),
+                            onPressed: onPress),
               ),
             )
           ],

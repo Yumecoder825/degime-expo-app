@@ -3,15 +3,18 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:degime_131/utils/ComTextfield.dart';
 import 'package:degime_131/utils/FunctionButton.dart';
+import 'package:degime_131/utils/Global_variable.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:degime_131/screen/Login_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+  var token;
+  RegisterPage({super.key, this.token});
   static String tag = "/RegisterPage";
   @override
   State<RegisterPage> createState() => _RegisterPage();
@@ -61,24 +64,49 @@ class _RegisterPage extends State<RegisterPage> {
           List<String> words = text.split('');
           if (words.length == 1) {
             if (index == 6) {
+              FocusScope.of(context).unfocus();
+              String finaldigit = _controllers[0].text +
+                  _controllers[1].text +
+                  _controllers[2].text +
+                  _controllers[3].text +
+                  _controllers[4].text +
+                  _controllers[5].text;
+              validateRegister(_inputText2, finaldigit);
+            } else {
+              FocusScope.of(context).requestFocus(_focusNodes[index]);
+            }
+          }
+          if (text == '') {
+            if (index == 1) {
               FocusScope.of(context).requestFocus(_focusNodes[0]);
             } else
-              FocusScope.of(context).requestFocus(_focusNodes[index]);
+              FocusScope.of(context).requestFocus(_focusNodes[index - 2]);
+          }
+          if (words.length == 6) {
+            _controllers[0].text = words[0];
+            _controllers[1].text = words[1];
+            _controllers[2].text = words[2];
+            _controllers[3].text = words[3];
+            _controllers[4].text = words[4];
+            _controllers[5].text = words[5];
+            FocusScope.of(context).unfocus();
+            validateRegister(
+                _inputText2,
+                _controllers[0].text +
+                    _controllers[1].text +
+                    _controllers[2].text +
+                    _controllers[3].text +
+                    _controllers[4].text +
+                    _controllers[5].text);
           }
         },
       ),
     );
   }
 
-  Future<void> registerUser(
-      String username, String email, String password, String password2) async {
-    var url = Uri.parse('http://194.87.199.12:8000/account/register/');
-    var data = {
-      "username": username,
-      "email": email,
-      "password": password,
-      "password2": password2,
-    };
+  Future<void> validateRegister(String email, String validate) async {
+    var url = Uri.parse('http://194.87.199.12:5000/account/register/validate');
+    var data = {"email": email, "vcode": validate};
 
     final requestBody = jsonEncode(data);
     var response = await http.post(url,
@@ -88,17 +116,144 @@ class _RegisterPage extends State<RegisterPage> {
         body: requestBody);
     print(json.decode(response.body));
     // Handle the API response
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       // Registration successful
       var responseData = json.decode(response.body);
-      Navigator.push(context,
-          MaterialPageRoute(builder: (BuildContext context) => LoginPage()));
+      widget.token = responseData;
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => LoginPage(
+                    token: widget.token,
+                  )));
       // Do something with the response data
     } else {
       // Registration failed
       var error = json.decode(response.body)['error'];
       print("error");
       // Show error message to the user
+    }
+  }
+
+  Future<void> registerUser(
+      String username, String email, String password, String password2) async {
+    var url = Uri.parse('http://194.87.199.12:5000/account/register/vcode');
+    var data = {
+      "username": username,
+      "email": email,
+      "password": password,
+    };
+    var response;
+    final requestBody = jsonEncode(data);
+    if (password == password2 &&
+        password.length >= 6 &&
+        _inputText1 != '' &&
+        _inputText2.contains('@', 0) == true) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: Container(
+                padding: EdgeInsets.all(0),
+                height: 150,
+                alignment: Alignment.center,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'メールに送られたコードを\n入力してください',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 220,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Visibility(
+                                visible: true,
+                                child: digit(context, _controllers[0], 1),
+                              ),
+                              digit(context, _controllers[1], 2),
+                              digit(context, _controllers[2], 3),
+                              digit(context, _controllers[3], 4),
+                              digit(context, _controllers[4], 5),
+                              digit(context, _controllers[5], 6),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        FunctionButton(
+                            title: '再送する',
+                            wordcolor: Colors.white,
+                            width: 96,
+                            height: 30,
+                            bordercolor: Colors.transparent,
+                            fillcolor: Color(0xFFFF8F61),
+                            onPressed: () {
+                              _controllers
+                                  .forEach((controller) => controller.clear());
+                            })
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              actionsPadding: EdgeInsets.all(0),
+              actions: [],
+            );
+          });
+
+      response = await http.post(url,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: requestBody);
+      print(json.decode(response.body));
+      // Handle the API response
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Registration successful
+        var responseData = json.decode(response.body);
+        GlobalVariables.landingname = username;
+        // Do something with the response data
+      } else {
+        // Registration failed
+        var error = json.decode(response.body)['error'];
+        print("error");
+        // Show error message to the user
+      }
+    } else {
+      if (_inputText2.contains('@', 0) == false) {
+        Fluttertoast.showToast(
+            msg: 'Please type correct email',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.red,
+            textColor: Colors.white);
+      } else {
+        Fluttertoast.showToast(
+            msg: 'Please type correct password',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.red,
+            textColor: Colors.white);
+      }
     }
   }
 
@@ -204,7 +359,7 @@ class _RegisterPage extends State<RegisterPage> {
                                                 recognizer:
                                                     TapGestureRecognizer()
                                                       ..onTap = () {
-                                                        const LoginPage()
+                                                        LoginPage()
                                                             .launch(context);
                                                       }),
                                             const TextSpan(
@@ -410,96 +565,18 @@ class _RegisterPage extends State<RegisterPage> {
                         height: 50,
                         child: OutlinedButton(
                             onPressed: () {
-                              // print(_inputText1 +
-                              //     ' ' +
-                              //     _inputText2 +
-                              //     ' ' +
-                              //     _inputText3 +
-                              //     ' ' +
-                              //     _inputText4);
-                              // setState(() {
-                              //   registerUser(_inputText1, _inputText2,
-                              //       _inputText3, _inputText4);
-                              // });
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      content: Container(
-                                        padding: EdgeInsets.all(0),
-                                        height: 150,
-                                        alignment: Alignment.center,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                const Text(
-                                                  'メールに送られたコードを\n入力してください',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.black),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Container(
-                                                  width: 220,
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceAround,
-                                                    children: [
-                                                      Visibility(
-                                                        visible: true,
-                                                        child: digit(context,
-                                                          _controllers[0], 1),),
-                                                      digit(context,
-                                                          _controllers[1], 2),
-                                                      digit(context,
-                                                          _controllers[2], 3),
-                                                      digit(context,
-                                                          _controllers[3], 4),
-                                                      digit(context,
-                                                          _controllers[4], 5),
-                                                      digit(context,
-                                                          _controllers[5], 6),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            FunctionButton(
-                                                title: '確認',
-                                                wordcolor: Colors.white,
-                                                width: 65,
-                                                height: 30,
-                                                bordercolor: Colors.transparent,
-                                                fillcolor: Color(0xFFFF8F61),
-                                                onPressed: () {
-                                                  _controllers.forEach(
-                                                      (controller) =>
-                                                          controller.clear());
-                                                })
-                                          ],
-                                        ),
-                                      ),
-                                      actionsPadding: EdgeInsets.all(0),
-                                      actions: [],
-                                    );
-                                  });
+                              //_controllers.clear();
+                              print(_inputText1 +
+                                  ' ' +
+                                  _inputText2 +
+                                  ' ' +
+                                  _inputText3 +
+                                  ' ' +
+                                  _inputText4);
+                              setState(() {
+                                registerUser(_inputText1, _inputText2,
+                                    _inputText3, _inputText4);
+                              });
                             },
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.all(0),

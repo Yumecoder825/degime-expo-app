@@ -1,4 +1,7 @@
+import 'package:degime_131/main.dart';
+import 'package:degime_131/screen/BCardManage_page2.dart';
 import 'package:degime_131/screen/ChatApply_page.dart';
+import 'package:degime_131/screen/Chat_page.dart';
 import 'package:degime_131/screen/DataManage_page.dart';
 import 'package:degime_131/screen/Landing_next.dart';
 import 'package:degime_131/screen/Menu_page.dart';
@@ -10,6 +13,9 @@ import 'package:nb_utils/nb_utils.dart';
 import 'package:degime_131/screen/Login_page.dart';
 import 'package:degime_131/screen/Theme_select.dart';
 import 'package:flutter/services.dart';
+import 'package:degime_131/utils/Global_variable.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -103,13 +109,22 @@ class _LandingPage extends State<LandingPage> {
                                           onSelected: (value) {
                                             setState(() {
                                               if (value == 'Option 1') {
-                                                MenuPage1(isVisible1: true,isVisible2: false,isVisible3: false)
+                                                MenuPage1(
+                                                        isVisible1: true,
+                                                        isVisible2: false,
+                                                        isVisible3: false)
                                                     .launch(context);
                                               } else if (value == 'Option 2') {
-                                                MenuPage1(isVisible1: false,isVisible2: true,isVisible3: false)
+                                                MenuPage1(
+                                                        isVisible1: false,
+                                                        isVisible2: true,
+                                                        isVisible3: false)
                                                     .launch(context);
                                               } else if (value == 'Option 3') {
-                                                MenuPage1(isVisible1: false,isVisible2: false,isVisible3: true)
+                                                MenuPage1(
+                                                        isVisible1: false,
+                                                        isVisible2: false,
+                                                        isVisible3: true)
                                                     .launch(context);
                                               }
                                             });
@@ -146,22 +161,28 @@ class _LandingPage extends State<LandingPage> {
                             ],
                           ),
                           Positioned(
-                            top: 130,
-                            left: screenWidth / 2 - 39,
-                            child: const Image(
-                              image: AssetImage('assets/images/avatar.png'),
-                              fit: BoxFit.cover,
-                              width: 80,
-                            ),
-                          ),
-                          const Positioned(
+                              top: 130,
+                              left: screenWidth / 2 - 39,
+                              child: GlobalVariables.landingavatar == ""
+                                  ? Image(
+                                      image: AssetImage(
+                                          'assets/images/defaultavatar.png'),
+                                      fit: BoxFit.cover,
+                                      width: 80,
+                                    )
+                                  : Image.network(
+                                      GlobalVariables.landingavatar,
+                                      fit: BoxFit.cover,
+                                      width: 80,
+                                    )),
+                          Positioned(
                             top: 0,
                             left: 0,
                             child: Image(
                               image:
                                   AssetImage('assets/images/degime_logo.png'),
-                              width: 60,
                               fit: BoxFit.cover,
+                              width: 100,
                             ),
                           )
                         ],
@@ -173,28 +194,31 @@ class _LandingPage extends State<LandingPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Column(children: [
-                        const Text(
-                          "はるこ",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        10.height,
-                        Row(
+                      Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              "https://degime.net/haruko",
+                            Text(
+                              GlobalVariables.landingname,
                               style: TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
-                            IconButton(
-                                onPressed: () {
-                                  print('object');
-                                },
-                                icon: Icon(Icons.copy)),
-                          ],
-                        )
-                      ])
+                            10.height,
+                            Row(
+                              children: [
+                                Text(
+                                  GlobalVariables.landingurl,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                GlobalVariables.landingurl != ""
+                                    ? IconButton(
+                                        onPressed: () {},
+                                        icon: Icon(Icons.copy))
+                                    : 0.width
+                              ],
+                            )
+                          ])
                     ],
                   ),
                   20.height,
@@ -262,8 +286,18 @@ class _LandingPage extends State<LandingPage> {
                             children: [
                               OutlinedButton(
                                   onPressed: () {
-                                    const LoginPage().launch(context);
-                                    //const ThemeSelect().launch(context);
+                                    if (GlobalVariables.token != '') {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (BuildContext context) =>
+                                                  ThemeSelect2()));
+                                    } else
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (BuildContext context) =>
+                                                  LoginPage()));
                                   },
                                   style: OutlinedButton.styleFrom(
                                     backgroundColor: _isPressed
@@ -328,12 +362,19 @@ class _LandingPage extends State<LandingPage> {
                             children: [
                               OutlinedButton(
                                 onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const ThemeSelect1(),
-                                      ));
+                                  if (GlobalVariables.token != '') {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const ThemeSelect1(),
+                                        ));
+                                  } else
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                LoginPage()));
                                 },
                                 style: OutlinedButton.styleFrom(
                                   backgroundColor: _isPressed1
@@ -420,29 +461,29 @@ class _LandingPage extends State<LandingPage> {
                                   ],
                                 ),
                               ),
-                              Positioned(
-                                  top: 1,
-                                  left: _isPressed2
-                                      ? screenWidth * 0.43
-                                      : screenWidth * 0.38,
-                                  child: const Image(
-                                    image:
-                                        AssetImage('assets/images/circle.png'),
-                                    width: 15,
-                                    height: 15,
-                                    color: Color(0xFFFF8F61),
-                                    fit: BoxFit.fill,
-                                  )),
-                              Positioned(
-                                  top: 2,
-                                  left: _isPressed2
-                                      ? screenWidth * 0.43 + 4
-                                      : screenWidth * 0.38 + 4,
-                                  child: const Text(
-                                    "5",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 11),
-                                  )),
+                              // Positioned(
+                              //     top: 1,
+                              //     left: _isPressed2
+                              //         ? screenWidth * 0.43
+                              //         : screenWidth * 0.38,
+                              //     child: const Image(
+                              //       image:
+                              //           AssetImage('assets/images/circle.png'),
+                              //       width: 15,
+                              //       height: 15,
+                              //       color: Color(0xFFFF8F61),
+                              //       fit: BoxFit.fill,
+                              //     )),
+                              // Positioned(
+                              //     top: 2,
+                              //     left: _isPressed2
+                              //         ? screenWidth * 0.43 + 4
+                              //         : screenWidth * 0.38 + 4,
+                              //     child: const Text(
+                              //       "5",
+                              //       style: TextStyle(
+                              //           color: Colors.white, fontSize: 11),
+                              //     )),
                             ],
                           )),
                     )
@@ -560,7 +601,7 @@ class _LandingPage extends State<LandingPage> {
                           )),
                     )
                   ]),
-                  50.height
+                  70.height
                 ]),
           ),
         ),
@@ -606,7 +647,11 @@ class _LandingPage extends State<LandingPage> {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => ChatApply()));
+                                            builder: (context) => ChatPage(
+                                                  index: 0,
+                                                  folderName: '',
+                                                  addFolder: [],
+                                                )));
                                   },
                                   style: OutlinedButton.styleFrom(
                                     padding: const EdgeInsets.all(0),
@@ -787,7 +832,14 @@ class _LandingPage extends State<LandingPage> {
                           child: Stack(
                             children: [
                               OutlinedButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    await GlobalVariables.getMember();
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                BCardManagePage2()));
+                                  },
                                   style: OutlinedButton.styleFrom(
                                     padding: const EdgeInsets.all(0),
                                     backgroundColor: _isPressed7

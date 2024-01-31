@@ -1,5 +1,8 @@
+import 'package:degime_131/utils/Global_variable.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:nb_utils/nb_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,13 +12,15 @@ import 'package:degime_131/screen/Landing_page.dart';
 class MyPopupMenuButton1 extends StatelessWidget {
   final Function()? onDelete;
   final Function()? onBlock;
+  final Function()? onNone;
   final String? svgPath;
 
-  const MyPopupMenuButton1({
+  MyPopupMenuButton1({
     Key? key,
     this.svgPath,
     this.onDelete,
     this.onBlock,
+    this.onNone,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -25,32 +30,34 @@ class MyPopupMenuButton1 extends StatelessWidget {
       itemBuilder: (BuildContext context) => [
         PopupMenuItem<String>(
           padding: const EdgeInsets.only(left: 10),
-          value: 'Option 1',
-          onTap: () {},
+          value: 'Option 11',
+          onTap: onNone,
           child: const Text('元に戻す'),
         ),
         PopupMenuItem<String>(
           padding: const EdgeInsets.only(left: 10),
-          value: 'Option 2',
+          value: 'Option 21',
           onTap: onBlock,
           child: const Text('ブロックする'),
         ),
         PopupMenuItem<String>(
           padding: const EdgeInsets.only(left: 10),
-          value: 'Option 3',
+          value: 'Option 31',
           child: const Text('削除する'),
-          onTap: () {},
+          onTap: onDelete,
         ),
       ],
       onSelected: (value) {
-        if (value == 'Option 3') {
+        if (value == 'Option 31') {
           Widget okButton = Container(
             padding: const EdgeInsets.all(0),
             alignment: Alignment.center,
             width: 140,
             height: 35,
             child: OutlinedButton(
-                onPressed: onDelete,
+                onPressed: () {
+                  onDelete;
+                },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.all(0),
                   backgroundColor: Colors.white,
@@ -113,6 +120,12 @@ class MyPopupMenuButton1 extends StatelessWidget {
               builder: (BuildContext context) {
                 return alert;
               });
+        }
+        if (value == "Option 21") {
+          onBlock;
+        }
+        if (value == "Option 11") {
+          onNone;
         }
       },
     );
@@ -121,10 +134,14 @@ class MyPopupMenuButton1 extends StatelessWidget {
 
 class MyPopupMenuButton2 extends StatelessWidget {
   final Function()? onDelete;
+  final Function()? onUnannounce;
+  final Function()? onNone;
   final String? svgPath;
 
-  const MyPopupMenuButton2({
+  MyPopupMenuButton2({
     Key? key,
+    this.onNone,
+    this.onUnannounce,
     this.svgPath,
     this.onDelete,
   }) : super(key: key);
@@ -136,32 +153,34 @@ class MyPopupMenuButton2 extends StatelessWidget {
       itemBuilder: (BuildContext context) => [
         PopupMenuItem<String>(
           padding: const EdgeInsets.only(left: 10),
-          value: 'Option 1',
-          onTap: () {},
+          value: 'Option 13',
+          onTap: onNone,
           child: const Text('元に戻す'),
         ),
         PopupMenuItem<String>(
           padding: const EdgeInsets.only(left: 10),
-          value: 'Option 2',
-          onTap: () {},
+          value: 'Option 23',
+          onTap: onUnannounce,
           child: const Text('非通知にする'),
         ),
         PopupMenuItem<String>(
           padding: const EdgeInsets.only(left: 10),
-          value: 'Option 3',
+          value: 'Option 33',
           child: const Text('削除する'),
-          onTap: () {},
+          onTap: onDelete,
         ),
       ],
       onSelected: (value) {
-        if (value == 'Option 3') {
+        if (value == 'Option 33') {
           Widget okButton = Container(
             padding: const EdgeInsets.all(0),
             alignment: Alignment.center,
             width: 140,
             height: 35,
             child: OutlinedButton(
-                onPressed: onDelete,
+                onPressed: () {
+                  onDelete;
+                },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.all(0),
                   backgroundColor: Colors.white,
@@ -225,19 +244,29 @@ class MyPopupMenuButton2 extends StatelessWidget {
                 return alert;
               });
         }
+        if (value == "Option 23") {
+          onUnannounce;
+        }
+        if (value == "Option 13") {
+          onNone;
+        }
       },
     );
   }
 }
 
 class MyPopupMenuButton3 extends StatelessWidget {
-  final Function()? onDelete;
+  final Function()? onUnannounce;
+  final Function()? onNone;
+  final Function()? onBlock;
   final String? svgPath;
 
-  const MyPopupMenuButton3({
+  MyPopupMenuButton3({
     Key? key,
     this.svgPath,
-    this.onDelete,
+    this.onBlock,
+    this.onUnannounce,
+    this.onNone,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -247,25 +276,33 @@ class MyPopupMenuButton3 extends StatelessWidget {
       itemBuilder: (BuildContext context) => [
         PopupMenuItem<String>(
           padding: const EdgeInsets.only(left: 10),
-          value: 'Option 1',
-          onTap: () {},
+          value: 'Option 12',
+          onTap: onNone,
           child: const Text('元に戻す'),
         ),
         PopupMenuItem<String>(
           padding: const EdgeInsets.only(left: 10),
-          value: 'Option 2',
-          onTap: () {},
+          value: 'Option 22',
+          onTap: onUnannounce,
           child: const Text('非通知にする'),
         ),
         PopupMenuItem<String>(
           padding: const EdgeInsets.only(left: 10),
-          value: 'Option 3',
+          value: 'Option 32',
           child: const Text('ブロックする'),
-          onTap: () {},
+          onTap: onBlock,
         ),
       ],
       onSelected: (value) {
-        if (value == 'Option 2') {}
+        if (value == 'Option 12') {
+          onNone;
+        }
+        if (value == 'Option 22') {
+          onUnannounce;
+        }
+        if (value == 'Option 32') {
+          onBlock;
+        }
       },
     );
   }
@@ -361,6 +398,8 @@ class MyReturnButton extends StatelessWidget {
 class MyListTile extends StatelessWidget {
   final String imagePath;
   final double svgRight;
+  String title;
+  String subtitle;
   final MyPopupMenuButton1? myPopupMenuButton1;
   final MyPopupMenuButton2? myPopupMenuButton2;
   final MyPopupMenuButton3? myPopupMenuButton3;
@@ -370,9 +409,11 @@ class MyListTile extends StatelessWidget {
   final bool isFirstPage;
   final bool isSecondPage;
 
-  const MyListTile({
+  MyListTile({
     Key? key,
     this.myReturnButton,
+    required this.title,
+    required this.subtitle,
     required this.imagePath,
     required this.svgRight,
     this.myPopupMenuButton1,
@@ -397,10 +438,15 @@ class MyListTile extends StatelessWidget {
             alignment: Alignment.center,
             child: Stack(
               children: [
-                Image.asset(
-                  imagePath,
-                  width: 40,
-                ),
+                imagePath.contains('assets')
+                    ? Image.asset(
+                        imagePath,
+                        width: 50,
+                      )
+                    : Image.network(
+                        imagePath,
+                        width: 50,
+                      ),
                 Positioned(
                   top: 0,
                   right: svgRight,
@@ -409,11 +455,11 @@ class MyListTile extends StatelessWidget {
               ],
             ),
           ),
-          title: const Text(
-            'Jane Cooper   CEO   ○○○○株式会社',
+          title: Text(
+            title,
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
-          subtitle: const Text('2022/11/20保存 2022/11/20更新',
+          subtitle: Text(subtitle,
               style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -447,241 +493,32 @@ class MenuPage1 extends StatefulWidget {
 
 class _MenuPage1 extends State<MenuPage1> {
   TextEditingController _controller = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    GlobalVariables.getMember();
+  }
 
-  late List<MyListTile> listtiles1 = [
-    MyListTile(
-      imagePath: 'assets/images/avatar1.png',
-      svgRight: 100,
-      isFirstPage: true,
-      isSecondPage: false,
-      myPopupMenuButton1: MyPopupMenuButton1(
-        svgPath: 'assets/images/setting.svg',
-        onBlock: () {
-          setState(() {
-            listtiles1
-              ..removeWhere(
-                  (widget) => widget.imagePath == 'assets/images/avatar1.png');
-            listtiles1.add(
-              MyListTile(
-                imagePath: 'assets/images/avatar1.png',
-                svgRight: 100,
-                isFirstPage: false,
-                isSecondPage: true,
-                myPopupMenuButton2: MyPopupMenuButton2(
-                  svgPath: 'assets/images/setting.svg',
-                  onDelete: () {
-                    setState(() {
-                      listtiles2.removeAt(listtiles2.length);
-                    });
-                  },
-                ),
-              ),
-            );
-          });
+  Future<void> changeSetting(String member, String settingname) async {
+    var url = Uri.parse('http://194.87.199.12:5000/social/private/contactdata');
+    var data = {"member": member, "block_setting": settingname};
+    final requestbody = jsonEncode(data);
+    var response = await http.put(url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'token ${GlobalVariables.token}'
         },
-        onDelete: () {
-          setState(() {
-            listtiles1
-              ..removeWhere(
-                  (widget) => widget.imagePath == 'assets/images/avatar1.png');
-          });
-          Navigator.of(context).pop();
-        },
-      ),
-    ),
-    MyListTile(
-      imagePath: 'assets/images/avatar2.png',
-      svgRight: 0,
-      isFirstPage: true,
-      isSecondPage: false,
-      myPopupMenuButton1: MyPopupMenuButton1(
-        svgPath: 'assets/images/setting.svg',
-        onBlock: () {
-          setState(() {
-            listtiles1
-              ..removeWhere(
-                  (widget) => widget.imagePath == 'assets/images/avatar2.png');
-            listtiles2.add(
-              MyListTile(
-                imagePath: 'assets/images/avatar2.png',
-                svgRight: 100,
-                isFirstPage: false,
-                isSecondPage: true,
-                myPopupMenuButton2: MyPopupMenuButton2(
-                  svgPath: 'assets/images/setting.svg',
-                  onDelete: () {
-                    setState(() {
-                      listtiles2.removeAt(listtiles2.length);
-                    });
-                  },
-                ),
-              ),
-            );
-          });
-        },
-        onDelete: () {
-          setState(() {
-            listtiles1
-              ..removeWhere(
-                  (widget) => widget.imagePath == 'assets/images/avatar2.png');
-          });
-          Navigator.of(context).pop();
-        },
-      ),
-    ),
-    MyListTile(
-      imagePath: 'assets/images/avatar3.png',
-      svgRight: 0,
-      isFirstPage: true,
-      isSecondPage: false,
-      myPopupMenuButton1: MyPopupMenuButton1(
-        svgPath: 'assets/images/setting.svg',
-        onDelete: () {
-          setState(() {
-            listtiles1
-              ..removeWhere(
-                  (widget) => widget.imagePath == 'assets/images/avatar3.png');
-          });
-          Navigator.of(context).pop();
-        },
-      ),
-    ),
-  ];
+        body: requestbody);
+    await GlobalVariables.getMember();
+    Navigator.of(context).pop();
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => MenuPage1(
+                isVisible1: true, isVisible2: false, isVisible3: false)));
+  }
 
-  late List<MyListTile> listtiles2 = [
-    MyListTile(
-      imagePath: 'assets/images/avatar1.png',
-      svgRight: 100,
-      isFirstPage: false,
-      isSecondPage: true,
-      myPopupMenuButton2: MyPopupMenuButton2(
-        svgPath: 'assets/images/setting.svg',
-        onDelete: () {
-          setState(() {
-            listtiles2.removeAt(0);
-          });
-          //Navigator.pop(context);
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //       builder: (context) =>
-          //           MenuPage3(path: 'assets/images/avatar1.png')),
-          // );
-        },
-      ),
-    ),
-    MyListTile(
-      imagePath: 'assets/images/avatar2.png',
-      svgRight: 0,
-      isFirstPage: false,
-      isSecondPage: true,
-      myPopupMenuButton2: MyPopupMenuButton2(
-        svgPath: 'assets/images/setting.svg',
-        onDelete: () {
-          setState(() {
-            listtiles2.removeAt(1);
-          });
-          Navigator.pop(context);
-        },
-      ),
-    ),
-    MyListTile(
-      imagePath: 'assets/images/avatar3.png',
-      svgRight: 100,
-      isFirstPage: false,
-      isSecondPage: true,
-      myPopupMenuButton2: MyPopupMenuButton2(
-        svgPath: 'assets/images/setting.svg',
-        onDelete: () {
-          setState(() {
-            listtiles2.removeAt(2);
-            //listtil2es.add(listtiles[0]);
-          });
-          Navigator.pop(context);
-        },
-      ),
-    ),
-    MyListTile(
-      imagePath: 'assets/images/avatar2.png',
-      svgRight: 100,
-      isFirstPage: false,
-      isSecondPage: true,
-      myPopupMenuButton2: MyPopupMenuButton2(
-        svgPath: 'assets/images/setting.svg',
-        onDelete: () {
-          setState(() {
-            listtiles2.removeAt(3);
-          });
-          Navigator.pop(context);
-        },
-      ),
-    ),
-  ];
-
-  late List<MyListTile> listtiles3 = [
-    MyListTile(
-      imagePath: 'assets/images/avatar1.png',
-      svgRight: 100,
-      isFirstPage: false,
-      isSecondPage: false,
-      myPopupMenuButton3: MyPopupMenuButton3(
-        svgPath: 'assets/images/setting.svg',
-        onDelete: () {
-          setState(() {
-            listtiles3.removeAt(0);
-          });
-          Navigator.pop(context);
-        },
-      ),
-    ),
-    MyListTile(
-      imagePath: 'assets/images/avatar2.png',
-      svgRight: 100,
-      isFirstPage: false,
-      isSecondPage: false,
-      myPopupMenuButton3: MyPopupMenuButton3(
-        svgPath: 'assets/images/setting.svg',
-        onDelete: () {
-          setState(() {
-            listtiles3.removeAt(1);
-          });
-          Navigator.pop(context);
-        },
-      ),
-    ),
-    MyListTile(
-      imagePath: 'assets/images/avatar3.png',
-      svgRight: 100,
-      isFirstPage: false,
-      isSecondPage: false,
-      myPopupMenuButton3: MyPopupMenuButton3(
-        svgPath: 'assets/images/setting.svg',
-        onDelete: () {
-          setState(() {
-            listtiles3.removeAt(2);
-          });
-          Navigator.pop(context);
-        },
-      ),
-    ),
-    MyListTile(
-      imagePath: 'assets/images/avatar3.png',
-      svgRight: 100,
-      isFirstPage: false,
-      isSecondPage: false,
-      myPopupMenuButton3: MyPopupMenuButton3(
-        svgPath: 'assets/images/setting.svg',
-        onDelete: () {
-          setState(() {
-            listtiles3.removeAt(3);
-            //listtiles.add(listtiles[0]);
-          });
-          //Navigator.pop(context);
-        },
-      ),
-    ),
-  ];
-
+  @override
   Widget menu1(BuildContext context) {
     return Container(
       child:
@@ -853,13 +690,45 @@ class _MenuPage1 extends State<MenuPage1> {
           ],
         ),
         ListView.builder(
-          itemCount: listtiles1.length,
+          itemCount: GlobalVariables.memberlist.length,
           padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
-            return listtiles1[index];
+            return GlobalVariables.memberlist[index]["block_setting"] ==
+                    "Unannounce"
+                ? MyListTile(
+                    imagePath: GlobalVariables.memberlist[index]
+                                ["member_avatar"] !=
+                            null
+                        ? GlobalVariables.memberlist[index]["member_avatar"]
+                        : 'assets/images/defaultavatar.png',
+                    title: GlobalVariables.memberlist[index]["member"],
+                    subtitle: GlobalVariables.memberlist[index]["member_email"],
+                    svgRight: 0,
+                    isFirstPage: true,
+                    isSecondPage: false,
+                    myPopupMenuButton1: MyPopupMenuButton1(
+                      svgPath: 'assets/images/setting.svg',
+                      onBlock: () {
+                        changeSetting(
+                            GlobalVariables.memberlist[index]["member"],
+                            "Block");
+                      },
+                      onDelete: () {
+                        changeSetting(
+                            GlobalVariables.memberlist[index]["member"],
+                            "Deleted");
+                      },
+                      onNone: () {
+                        changeSetting(
+                            GlobalVariables.memberlist[index]["member"],
+                            "None");
+                      },
+                    ),
+                  )
+                : 0.height;
           },
         )
       ]),
@@ -1037,13 +906,44 @@ class _MenuPage1 extends State<MenuPage1> {
           ],
         ),
         ListView.builder(
-          itemCount: listtiles2.length,
+          itemCount: GlobalVariables.memberlist.length,
           padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
-            return listtiles2[index];
+            return GlobalVariables.memberlist[index]["block_setting"] == "Block"
+                ? MyListTile(
+                    imagePath: GlobalVariables.memberlist[index]
+                                ["member_avatar"] !=
+                            null
+                        ? GlobalVariables.memberlist[index]["member_avatar"]
+                        : 'assets/images/defaultavatar.png',
+                    title: GlobalVariables.memberlist[index]["member"],
+                    subtitle: GlobalVariables.memberlist[index]["member_email"],
+                    svgRight: 0,
+                    isFirstPage: false,
+                    isSecondPage: true,
+                    myPopupMenuButton2: MyPopupMenuButton2(
+                      svgPath: 'assets/images/setting.svg',
+                      onUnannounce: () {
+                        changeSetting(
+                            GlobalVariables.memberlist[index]["member"],
+                            "Unannounce");
+                      },
+                      onDelete: () {
+                        changeSetting(
+                            GlobalVariables.memberlist[index]["member"],
+                            "Deleted");
+                      },
+                      onNone: () {
+                        changeSetting(
+                            GlobalVariables.memberlist[index]["member"],
+                            "None");
+                      },
+                    ),
+                  )
+                : 0.height;
           },
         )
       ]),
@@ -1221,13 +1121,45 @@ class _MenuPage1 extends State<MenuPage1> {
           ],
         ),
         ListView.builder(
-          itemCount: listtiles3.length,
+          itemCount: GlobalVariables.memberlist.length,
           padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
-            return listtiles3[index];
+            return GlobalVariables.memberlist[index]["block_setting"] ==
+                    "Deleted"
+                ? MyListTile(
+                    imagePath: GlobalVariables.memberlist[index]
+                                ["member_avatar"] !=
+                            null
+                        ? GlobalVariables.memberlist[index]["member_avatar"]
+                        : 'assets/images/defaultavatar.png',
+                    title: GlobalVariables.memberlist[index]["member"],
+                    subtitle: GlobalVariables.memberlist[index]["member_email"],
+                    svgRight: 0,
+                    isFirstPage: false,
+                    isSecondPage: false,
+                    myPopupMenuButton3: MyPopupMenuButton3(
+                      svgPath: 'assets/images/setting.svg',
+                      onBlock: () {
+                        changeSetting(
+                            GlobalVariables.memberlist[index]["member"],
+                            "Block");
+                      },
+                      onUnannounce: () {
+                        changeSetting(
+                            GlobalVariables.memberlist[index]["member"],
+                            "Unannounce");
+                      },
+                      onNone: () {
+                        changeSetting(
+                            GlobalVariables.memberlist[index]["member"],
+                            "None");
+                      },
+                    ),
+                  )
+                : 0.height;
           },
         )
       ]),
