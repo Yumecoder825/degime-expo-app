@@ -229,7 +229,7 @@ class _RegisterPage extends State<RegisterPage> {
       // Handle the API response
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Registration successful
-        var responseData = json.decode(response.body);
+        var responseData = await json.decode(response.body);
         GlobalVariables.landingname = username;
         // Do something with the response data
       } else {
@@ -528,14 +528,29 @@ class _RegisterPage extends State<RegisterPage> {
                                       color: Colors.black),
                                   children: [
                                     TextSpan(
-                                        text: '利用規約・プライバシーポリシー',
+                                        text: '利用条件',
                                         style: const TextStyle(
                                           fontSize: 14,
                                           color: Color(0xFF4C31F4),
                                           fontWeight: FontWeight.bold,
                                         ),
                                         recognizer: TapGestureRecognizer()
-                                          ..onTap = () {}),
+                                          ..onTap = () {
+                                            launch(
+                                                'https://degime.net/home/terms_of_use/');
+                                          }),
+                                    TextSpan(
+                                        text: 'プライバシーポリシー',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xFF4C31F4),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            launch(
+                                                'https://degime.net/home/c-policy/');
+                                          }),
                                     const TextSpan(
                                         text: "に同意",
                                         style: TextStyle(
